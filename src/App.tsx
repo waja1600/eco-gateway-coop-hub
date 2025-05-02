@@ -16,6 +16,7 @@ import PortalSupplier from "./pages/PortalSupplier";
 import PortalFunder from "./pages/PortalFunder";
 import PortalFreelancer from "./pages/PortalFreelancer";
 import GovernancePortal from "./pages/GovernancePortal";
+import ProposalView from "./pages/ProposalView";
 
 // Import dashboard components
 import { DashboardLayout } from "./components/dashboard/DashboardLayout";
@@ -40,6 +41,7 @@ const App = () => (
             <Route path="/portals/funder" element={<PortalFunder />} />
             <Route path="/portals/freelancer" element={<PortalFreelancer />} />
             <Route path="/governance" element={<GovernancePortal />} />
+            <Route path="/governance/proposals/:id" element={<ProposalView />} />
             
             {/* Dashboard routes */}
             <Route path="/dashboard" element={<DashboardLayout />}>

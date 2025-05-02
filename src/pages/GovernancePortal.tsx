@@ -1,5 +1,6 @@
 
 import React from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import { Navbar } from '@/components/Navbar';
 import { Footer } from '@/components/Footer';
 import { Button } from "@/components/ui/button";
@@ -97,6 +98,12 @@ const pastProposals = [
 ];
 
 const GovernancePortal = () => {
+  const navigate = useNavigate();
+
+  const handleViewProposal = (id: number) => {
+    navigate(`/governance/proposals/${id}`);
+  };
+
   return (
     <div className="min-h-screen flex flex-col">
       <Navbar />
@@ -226,9 +233,17 @@ const GovernancePortal = () => {
                       </div>
                     </CardContent>
                     <CardFooter className="flex justify-between">
-                      <Button className="bg-green-500 hover:bg-green-600">مع</Button>
-                      <Button variant="outline">امتناع</Button>
-                      <Button className="bg-red-500 hover:bg-red-600">ضد</Button>
+                      <Button 
+                        className="bg-green-500 hover:bg-green-600"
+                        onClick={() => handleViewProposal(proposal.id)}
+                      >
+                        عرض التفاصيل
+                      </Button>
+                      <Button variant="outline">
+                        <Link to={`/governance/proposals/${proposal.id}`}>
+                          صوّت الآن
+                        </Link>
+                      </Button>
                     </CardFooter>
                   </Card>
                 ))}
@@ -273,7 +288,13 @@ const GovernancePortal = () => {
                       </div>
                     </CardContent>
                     <CardFooter>
-                      <Button variant="outline" className="w-full">عرض التفاصيل</Button>
+                      <Button 
+                        variant="outline" 
+                        className="w-full"
+                        onClick={() => handleViewProposal(proposal.id)}
+                      >
+                        عرض التفاصيل
+                      </Button>
                     </CardFooter>
                   </Card>
                 ))}
