@@ -31,12 +31,12 @@ const mockProposal = {
     { date: "2025-04-25", content: "تم تحديث قائمة المنتجات المتاحة للموسم القادم" }
   ],
   votes: [
-    { userId: "user1", userName: "أحمد محمد", vote: "مع", timestamp: "2025-04-16 10:30", comment: "أؤيد المبادرة لدعم المزارعين المحليين" },
-    { userId: "user2", userName: "سارة علي", vote: "مع", timestamp: "2025-04-17 14:22", comment: "المنتجات العضوية مهمة للصحة" },
-    { userId: "user3", userName: "محمد أحمد", vote: "ضد", timestamp: "2025-04-18 09:15", comment: "أرى أن الأسعار مرتفعة جداً" },
-    { userId: "user4", userName: "فاطمة حسن", vote: "مع", timestamp: "2025-04-19 16:05", comment: undefined },
-    { userId: "user5", userName: "علي محمود", vote: "امتناع", timestamp: "2025-04-20 11:30", comment: "أحتاج مزيداً من المعلومات" }
-  ]
+    { userId: "user1", userName: "أحمد محمد", vote: "مع" as const, timestamp: "2025-04-16 10:30", comment: "أؤيد المبادرة لدعم المزارعين المحليين" },
+    { userId: "user2", userName: "سارة علي", vote: "مع" as const, timestamp: "2025-04-17 14:22", comment: "المنتجات العضوية مهمة للصحة" },
+    { userId: "user3", userName: "محمد أحمد", vote: "ضد" as const, timestamp: "2025-04-18 09:15", comment: "أرى أن الأسعار مرتفعة جداً" },
+    { userId: "user4", userName: "فاطمة حسن", vote: "مع" as const, timestamp: "2025-04-19 16:05", comment: undefined },
+    { userId: "user5", userName: "علي محمود", vote: "امتناع" as const, timestamp: "2025-04-20 11:30", comment: "أحتاج مزيداً من المعلومات" }
+  ] as UserVote[]
 };
 
 const ProposalView = () => {
