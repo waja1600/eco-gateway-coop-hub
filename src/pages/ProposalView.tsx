@@ -13,7 +13,7 @@ const mockProposal = {
   description: "التصويت على إضافة مجموعة شراء جديدة للمحاصيل العضوية من المزارعين المحليين",
   detailedDescription: "تهدف هذه المبادرة إلى دعم المزارعين المحليين الذين ينتجون محاصيل عضوية من خلال إنشاء مجموعة شراء جماعي تتيح للأعضاء شراء المنتجات العضوية بأسعار تفضيلية. سيؤدي هذا إلى تعزيز الاقتصاد المحلي، وتقليل البصمة الكربونية للغذاء، وتوفير منتجات صحية للمجتمع.\n\nسيتم تحديد قائمة المنتجات العضوية المتاحة للشراء الجماعي، وسيتم التعاقد مع المزارعين المحليين الذين يلتزمون بمعايير الزراعة العضوية المعتمدة. سيتم تنظيم عملية الشراء على أساس موسمي لضمان الحصول على أفضل المنتجات الطازجة.",
   category: "مجموعات الشراء",
-  status: "نشط",
+  status: "نشط" as "نشط" | "تمت الموافقة" | "تم الرفض" | "مغلق",
   creator: "مزارع محلي",
   createdAt: "2025-04-15",
   deadline: "2025-05-30",
@@ -34,7 +34,7 @@ const mockProposal = {
     { userId: "user1", userName: "أحمد محمد", vote: "مع", timestamp: "2025-04-16 10:30", comment: "أؤيد المبادرة لدعم المزارعين المحليين" },
     { userId: "user2", userName: "سارة علي", vote: "مع", timestamp: "2025-04-17 14:22", comment: "المنتجات العضوية مهمة للصحة" },
     { userId: "user3", userName: "محمد أحمد", vote: "ضد", timestamp: "2025-04-18 09:15", comment: "أرى أن الأسعار مرتفعة جداً" },
-    { userId: "user4", userName: "فاطمة حسن", vote: "مع", timestamp: "2025-04-19 16:05" },
+    { userId: "user4", userName: "فاطمة حسن", vote: "مع", timestamp: "2025-04-19 16:05", comment: undefined },
     { userId: "user5", userName: "علي محمود", vote: "امتناع", timestamp: "2025-04-20 11:30", comment: "أحتاج مزيداً من المعلومات" }
   ]
 };
@@ -61,10 +61,10 @@ const ProposalView = () => {
       userName: "المستخدم الحالي",
       vote: vote,
       timestamp: new Date().toLocaleString('ar-EG'),
-      comment: comment
+      comment
     };
     
-    const updatedVotes = [...(proposal.votes || []), newVote];
+    const updatedVotes = [...proposal.votes, newVote];
     
     let updatedProposal = { ...proposal };
     
