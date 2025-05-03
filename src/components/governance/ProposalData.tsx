@@ -64,7 +64,10 @@ export const pastProposals = [
     votesAgainst: 12,
     abstain: 5,
     category: "مجموعات الشراء",
-    date: "2025-04-01"
+    date: "2025-04-01",
+    quorum: 50,          // Added required property
+    deadline: "2025-03-30", // Added required property
+    creator: "مجموعة المزارعين" // Added required property
   },
   {
     id: 102,
@@ -75,7 +78,10 @@ export const pastProposals = [
     votesAgainst: 15,
     abstain: 7,
     category: "التمويل",
-    date: "2025-03-15"
+    date: "2025-03-15",
+    quorum: 45,          // Added required property
+    deadline: "2025-03-10", // Added required property
+    creator: "لجنة التمويل" // Added required property
   },
   {
     id: 103,
@@ -86,6 +92,9 @@ export const pastProposals = [
     votesAgainst: 45,
     abstain: 3,
     category: "الحوكمة",
-    date: "2025-04-10"
+    date: "2025-04-10",
+    quorum: 60,          // Added required property
+    deadline: "2025-04-05", // Added required property
+    creator: "لجنة المالية" // Added required property
   }
 ];

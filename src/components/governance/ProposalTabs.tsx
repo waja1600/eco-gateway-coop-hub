@@ -11,10 +11,10 @@ interface Proposal {
   votesFor: number;
   votesAgainst: number;
   abstain: number;
-  quorum?: number;
-  deadline?: string;
+  quorum: number; // Changed from optional to required
+  deadline: string; // Changed from optional to required
   category: string;
-  creator?: string;
+  creator: string; // Changed from optional to required
   result?: string;
   date?: string;
 }
