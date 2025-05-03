@@ -22,26 +22,26 @@ export const HiringCard: React.FC<HiringContractProps> = ({ job }) => {
       description={job.description}
       status={job.status}
       badgeColor={{
-        bg: "bg-gradient-to-r from-amber-50 to-amber-100",
+        bg: "bg-gradient-to-r from-amber-100 to-amber-200",
         text: "text-amber-800",
-        border: "border-amber-200"
+        border: "border-amber-300"
       }}
-      buttonColor="bg-gradient-to-r from-coop-brown to-coop-brown/90"
-      buttonHoverColor="hover:shadow-lg hover:from-coop-brown/90 hover:to-coop-brown"
+      buttonColor="bg-gradient-to-r from-amber-500 to-amber-600"
+      buttonHoverColor="hover:shadow-lg hover:from-amber-600 hover:to-amber-700"
       buttonText="Apply Now"
     >
       <div className="grid grid-cols-2 gap-3 text-sm">
-        <div className="bg-amber-50/50 p-2 rounded-md">
-          <p className="text-muted-foreground text-xs">Duration</p>
-          <p className="font-medium">{job.duration}</p>
+        <div className="bg-amber-100 p-3 rounded-md shadow-inner border border-amber-200 transform transition-all hover:scale-105">
+          <p className="text-muted-foreground text-xs font-medium">Duration</p>
+          <p className="font-bold text-amber-800">{job.duration}</p>
         </div>
-        <div className="bg-amber-50/50 p-2 rounded-md">
-          <p className="text-muted-foreground text-xs">Rate</p>
-          <p className="font-medium">{job.rate}</p>
+        <div className="bg-amber-100 p-3 rounded-md shadow-inner border border-amber-200 transform transition-all hover:scale-105">
+          <p className="text-muted-foreground text-xs font-medium">Rate</p>
+          <p className="font-bold text-amber-800">{job.rate}</p>
         </div>
-        <div className="bg-amber-50/50 p-2 rounded-md col-span-2">
-          <p className="text-muted-foreground text-xs">Location</p>
-          <p className="font-medium">{job.location}</p>
+        <div className="bg-amber-100 p-3 rounded-md col-span-2 shadow-inner border border-amber-200 transform transition-all hover:scale-105">
+          <p className="text-muted-foreground text-xs font-medium">Location</p>
+          <p className="font-bold text-amber-800">{job.location}</p>
         </div>
       </div>
     </ContractCard>

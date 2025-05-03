@@ -22,26 +22,26 @@ export const PurchaseCard: React.FC<PurchaseContractProps> = ({ contract }) => {
       description={contract.description}
       status={contract.status}
       badgeColor={{
-        bg: "bg-gradient-to-r from-green-50 to-green-100",
-        text: "text-green-800",
-        border: "border-green-200"
+        bg: "bg-gradient-to-r from-emerald-100 to-emerald-200",
+        text: "text-emerald-800",
+        border: "border-emerald-300"
       }}
-      buttonColor="bg-gradient-to-r from-coop-green to-coop-green-dark"
-      buttonHoverColor="hover:shadow-lg hover:from-coop-green-dark hover:to-coop-green"
+      buttonColor="bg-gradient-to-r from-emerald-500 to-emerald-600"
+      buttonHoverColor="hover:shadow-lg hover:from-emerald-600 hover:to-emerald-700"
       buttonText="View Details"
     >
       <div className="grid grid-cols-2 gap-3 text-sm">
-        <div className="bg-green-50/50 p-2 rounded-md">
-          <p className="text-muted-foreground text-xs">Members</p>
-          <p className="font-medium">{contract.members}</p>
+        <div className="bg-emerald-100 p-3 rounded-md shadow-inner border border-emerald-200 transform transition-all hover:scale-105">
+          <p className="text-muted-foreground text-xs font-medium">Members</p>
+          <p className="font-bold text-emerald-800">{contract.members}</p>
         </div>
-        <div className="bg-green-50/50 p-2 rounded-md">
-          <p className="text-muted-foreground text-xs">Min. Amount</p>
-          <p className="font-medium">{contract.minAmount}</p>
+        <div className="bg-emerald-100 p-3 rounded-md shadow-inner border border-emerald-200 transform transition-all hover:scale-105">
+          <p className="text-muted-foreground text-xs font-medium">Min. Amount</p>
+          <p className="font-bold text-emerald-800">{contract.minAmount}</p>
         </div>
-        <div className="bg-green-50/50 p-2 rounded-md col-span-2">
-          <p className="text-muted-foreground text-xs">Deadline</p>
-          <p className="font-medium">{contract.deadline}</p>
+        <div className="bg-emerald-100 p-3 rounded-md col-span-2 shadow-inner border border-emerald-200 transform transition-all hover:scale-105">
+          <p className="text-muted-foreground text-xs font-medium">Deadline</p>
+          <p className="font-bold text-emerald-800">{contract.deadline}</p>
         </div>
       </div>
     </ContractCard>
