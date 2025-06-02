@@ -1,3 +1,4 @@
+
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -17,6 +18,13 @@ import PortalFreelancer from "./pages/PortalFreelancer";
 import GovernancePortal from "./pages/GovernancePortal";
 import ProposalView from "./pages/ProposalView";
 
+// Import new gateway and portal pages
+import GatewaysHub from "./pages/GatewaysHub";
+import GatewayDetails from "./pages/GatewayDetails";
+import VotingPortal from "./pages/VotingPortal";
+import ContractsPortal from "./pages/ContractsPortal";
+import NotificationsPortal from "./pages/NotificationsPortal";
+
 // Import dashboard components
 import { DashboardLayout } from "./components/dashboard/DashboardLayout";
 
@@ -35,12 +43,25 @@ const App = () => (
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
             
+            {/* Gateway routes */}
+            <Route path="/gateways" element={<GatewaysHub />} />
+            <Route path="/gateways/:gatewayId" element={<GatewayDetails />} />
+            
             {/* Portal routes */}
             <Route path="/portals/supplier" element={<PortalSupplier />} />
             <Route path="/portals/funder" element={<PortalFunder />} />
             <Route path="/portals/freelancer" element={<PortalFreelancer />} />
+            
+            {/* Governance & Voting routes */}
             <Route path="/governance" element={<GovernancePortal />} />
             <Route path="/governance/proposals/:id" element={<ProposalView />} />
+            <Route path="/voting" element={<VotingPortal />} />
+            
+            {/* Contract & Document Management */}
+            <Route path="/contracts" element={<ContractsPortal />} />
+            
+            {/* Notifications */}
+            <Route path="/notifications" element={<NotificationsPortal />} />
             
             {/* Dashboard routes */}
             <Route path="/dashboard" element={<DashboardLayout />}>
