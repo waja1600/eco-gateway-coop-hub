@@ -1,4 +1,3 @@
-
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -7,7 +6,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { SidebarProvider } from "@/components/ui/sidebar";
 
 // Import pages
-import Index from "./pages/Index";
+import ModernIndex from "./pages/ModernIndex";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 import Dashboard from "./pages/Dashboard";
@@ -32,7 +31,7 @@ const App = () => (
         <BrowserRouter>
           <Routes>
             {/* Public routes */}
-            <Route path="/" element={<Index />} />
+            <Route path="/" element={<ModernIndex />} />
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
             
@@ -46,13 +45,6 @@ const App = () => (
             {/* Dashboard routes */}
             <Route path="/dashboard" element={<DashboardLayout />}>
               <Route index element={<Dashboard />} />
-              {/* Add more dashboard routes as needed */}
-              {/* <Route path="contracts" element={<Contracts />} /> */}
-              {/* <Route path="profile" element={<Profile />} /> */}
-              {/* <Route path="notifications" element={<Notifications />} /> */}
-              {/* <Route path="billing" element={<Billing />} /> */}
-              {/* <Route path="costs" element={<Costs />} /> */}
-              {/* <Route path="support" element={<Support />} /> */}
             </Route>
             
             {/* 404 route */}
