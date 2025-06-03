@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { ModernMainLayout } from '@/layouts/ModernMainLayout';
@@ -6,7 +5,12 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Users, FileText, Vote, Briefcase, Scale, Building, Calendar, DollarSign } from 'lucide-react';
+import { RoleGuard, useRole } from '@/components/auth/RoleBasedAccess';
+import { ArbitrationPanel } from '@/components/arbitration/ArbitrationPanel';
+import { SmartContractSystem } from '@/components/contracts/SmartContractSystem';
+import { FreelancerOffers } from '@/components/freelancer/FreelancerOffers';
+import { SupplierOffers } from '@/components/supplier/SupplierOffers';
+import { Users, FileText, Vote, Briefcase, Scale, Building, Calendar, DollarSign, Plus } from 'lucide-react';
 
 interface GroupMember {
   id: string;
@@ -56,8 +60,12 @@ const mockGroupData: GroupData = {
 
 export default function GroupDetails() {
   const { groupId } = useParams<{ groupId: string }>();
+  const { user, canManageGroup } = useRole();
   const [activeTab, setActiveTab] = useState('overview');
   const [groupData] = useState<GroupData>(mockGroupData);
+
+  const canManage = canManageGroup(groupId || '');
+  const isFounder = user?.id === '1'; // Mock check
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -102,6 +110,11 @@ export default function GroupDetails() {
                     <Badge variant="outline">{groupData.sector}</Badge>
                     <Badge variant="outline">{groupData.country}</Badge>
                     <Badge variant="outline" className="capitalize">{groupData.type} Contract</Badge>
+                    {user && (
+                      <Badge variant="outline" className={canManage ? "bg-green-50 text-green-700" : "bg-gray-50 text-gray-700"}>
+                        {canManage ? 'Manager' : 'Member'}
+                      </Badge>
+                    )}
                   </div>
                 </div>
                 <div className="text-right">
@@ -303,79 +316,27 @@ export default function GroupDetails() {
             </TabsContent>
 
             <TabsContent value="contracts" className="mt-6">
-              <Card>
-                <CardHeader>
-                  <div className="flex justify-between items-center">
-                    <CardTitle>Smart Contracts</CardTitle>
-                    <Button>Create New Contract</Button>
-                  </div>
-                </CardHeader>
-                <CardContent>
-                  <div className="text-center py-12">
-                    <FileText className="mx-auto h-12 w-12 text-gray-400 mb-4" />
-                    <p className="text-gray-600">No contracts created yet.</p>
-                    <p className="text-sm text-gray-500 mb-4">Use our smart contract templates to get started</p>
-                    <Button className="mt-4">Browse Templates</Button>
-                  </div>
-                </CardContent>
-              </Card>
+              <RoleGuard resource="contracts" action="read">
+                <SmartContractSystem groupId={groupId || 'demo-group'} />
+              </RoleGuard>
             </TabsContent>
 
             <TabsContent value="freelancers" className="mt-6">
-              <Card>
-                <CardHeader>
-                  <div className="flex justify-between items-center">
-                    <CardTitle>Freelancer Offers</CardTitle>
-                    <Button>Post New Opportunity</Button>
-                  </div>
-                </CardHeader>
-                <CardContent>
-                  <div className="text-center py-12">
-                    <Briefcase className="mx-auto h-12 w-12 text-gray-400 mb-4" />
-                    <p className="text-gray-600">No freelancer offers submitted yet.</p>
-                    <Button className="mt-4">Post Your First Opportunity</Button>
-                  </div>
-                </CardContent>
-              </Card>
+              <RoleGuard resource="freelancers" action="read">
+                <FreelancerOffers groupId={groupId || 'demo-group'} canManage={canManage} />
+              </RoleGuard>
             </TabsContent>
 
             <TabsContent value="suppliers" className="mt-6">
-              <Card>
-                <CardHeader>
-                  <div className="flex justify-between items-center">
-                    <CardTitle>Supplier Proposals</CardTitle>
-                    <Button>Request Proposals</Button>
-                  </div>
-                </CardHeader>
-                <CardContent>
-                  <div className="text-center py-12">
-                    <Building className="mx-auto h-12 w-12 text-gray-400 mb-4" />
-                    <p className="text-gray-600">No supplier proposals received yet.</p>
-                    <Button className="mt-4">Request Your First Proposal</Button>
-                  </div>
-                </CardContent>
-              </Card>
+              <RoleGuard resource="suppliers" action="read">
+                <SupplierOffers groupId={groupId || 'demo-group'} canManage={canManage} />
+              </RoleGuard>
             </TabsContent>
 
             <TabsContent value="arbitration" className="mt-6">
-              <Card>
-                <CardHeader>
-                  <div className="flex justify-between items-center">
-                    <CardTitle>Arbitration (ORDA)</CardTitle>
-                    <Button variant="destructive">Request Arbitration</Button>
-                  </div>
-                </CardHeader>
-                <CardContent>
-                  <div className="text-center py-12">
-                    <Scale className="mx-auto h-12 w-12 text-gray-400 mb-4" />
-                    <p className="text-gray-600">No arbitration cases active.</p>
-                    <p className="text-sm text-gray-500 mb-4">
-                      Request arbitration if you have disputes that need resolution
-                    </p>
-                    <Button variant="outline" className="mt-4">Learn About Arbitration</Button>
-                  </div>
-                </CardContent>
-              </Card>
+              <RoleGuard resource="arbitration" action="read">
+                <ArbitrationPanel groupId={groupId || 'demo-group'} canRequestArbitration={canManage} />
+              </RoleGuard>
             </TabsContent>
           </Tabs>
         </div>
