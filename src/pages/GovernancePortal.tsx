@@ -5,7 +5,7 @@ import { Navbar } from '@/components/Navbar';
 import { Footer } from '@/components/Footer';
 import { GovernanceHero } from '@/components/governance/HeroSection';
 import { StatsCards } from '@/components/governance/StatsCards';
-import { ProposalTabs } from '@/components/governance/ProposalTabs';
+import { ProposalsList } from '@/components/governance/ProposalsList';
 import { HowItWorks } from '@/components/governance/HowItWorks';
 import { activeProposals, pastProposals } from '@/components/governance/ProposalData';
 
@@ -31,8 +31,8 @@ const GovernancePortal = () => {
             implementedProposals={27} 
           />
 
-          {/* Proposals Tabs */}
-          <ProposalTabs 
+          {/* Proposals List */}
+          <ProposalsList 
             activeProposals={activeProposals}
             pastProposals={pastProposals}
           />

@@ -29,7 +29,7 @@ export interface ProposalDetailsProps {
   onVote?: (vote: 'مع' | 'ضد' | 'امتناع', comment?: string) => void;
 }
 
-export { UserVote };
+export type { UserVote };
 
 export const ProposalDetails = ({ proposal, onBack, onVote }: ProposalDetailsProps) => {
   const [comment, setComment] = React.useState("");
