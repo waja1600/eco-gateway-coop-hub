@@ -28,6 +28,7 @@ import NotificationsPortal from "./pages/NotificationsPortal";
 // Import new pages
 import GroupCreation from "./pages/GroupCreation";
 import GroupDetails from "./pages/GroupDetails";
+import SystemComponents from "./pages/SystemComponents";
 
 // Import dashboard components
 import { DashboardLayout } from "./components/dashboard/DashboardLayout";
@@ -70,6 +71,9 @@ const App = () => (
             
             {/* Notifications */}
             <Route path="/notifications" element={<NotificationsPortal />} />
+            
+            {/* System Components */}
+            <Route path="/system" element={<SystemComponents />} />
             
             {/* Dashboard routes */}
             <Route path="/dashboard" element={<DashboardLayout />}>

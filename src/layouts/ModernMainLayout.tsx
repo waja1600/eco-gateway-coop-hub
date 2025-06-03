@@ -1,6 +1,6 @@
 
 import React, { ReactNode } from 'react';
-import { HeaderBar } from '@/components/layout/HeaderBar';
+import { EnhancedHeaderBar } from '@/components/layout/EnhancedHeaderBar';
 import { ModernNavbar } from '@/components/layout/ModernNavbar';
 import { Footer } from '@/components/Footer';
 
@@ -12,7 +12,7 @@ interface ModernMainLayoutProps {
 export function ModernMainLayout({ children, className = "" }: ModernMainLayoutProps) {
   return (
     <div className={`min-h-screen flex flex-col bg-gray-50 ${className}`}>
-      <HeaderBar />
+      <EnhancedHeaderBar />
       <ModernNavbar />
       <main className="flex-grow">
         {children}
