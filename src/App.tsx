@@ -25,6 +25,10 @@ import VotingPortal from "./pages/VotingPortal";
 import ContractsPortal from "./pages/ContractsPortal";
 import NotificationsPortal from "./pages/NotificationsPortal";
 
+// Import new pages
+import GroupCreation from "./pages/GroupCreation";
+import GroupDetails from "./pages/GroupDetails";
+
 // Import dashboard components
 import { DashboardLayout } from "./components/dashboard/DashboardLayout";
 
@@ -46,6 +50,10 @@ const App = () => (
             {/* Gateway routes */}
             <Route path="/gateways" element={<GatewaysHub />} />
             <Route path="/gateways/:gatewayId" element={<GatewayDetails />} />
+            <Route path="/gateways/:gatewayId/create" element={<GroupCreation />} />
+            
+            {/* Group management routes */}
+            <Route path="/groups/:groupId" element={<GroupDetails />} />
             
             {/* Portal routes */}
             <Route path="/portals/supplier" element={<PortalSupplier />} />

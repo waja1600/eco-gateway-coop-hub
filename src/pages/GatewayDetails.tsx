@@ -6,6 +6,8 @@ import { GroupBuyingGateway } from '@/components/gateways/GroupBuyingGateway';
 import { CooperativeMarketingGateway } from '@/components/gateways/CooperativeMarketingGateway';
 import { CompanyIncorporationGateway } from '@/components/gateways/CompanyIncorporationGateway';
 import { SuppliersFreelancersGateway } from '@/components/gateways/SuppliersFreelancersGateway';
+import { CommercialArbitrationGateway } from '@/components/gateways/CommercialArbitrationGateway';
+import { ContractVerificationGateway } from '@/components/gateways/ContractVerificationGateway';
 
 export default function GatewayDetails() {
   const { gatewayId } = useParams<{ gatewayId: string }>();
@@ -20,6 +22,10 @@ export default function GatewayDetails() {
         return <CompanyIncorporationGateway />;
       case 'suppliers-freelancers':
         return <SuppliersFreelancersGateway />;
+      case 'commercial-arbitration':
+        return <CommercialArbitrationGateway />;
+      case 'contract-verification':
+        return <ContractVerificationGateway />;
       default:
         return (
           <div className="text-center py-12">

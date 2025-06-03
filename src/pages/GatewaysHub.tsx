@@ -4,7 +4,7 @@ import { ModernMainLayout } from '@/layouts/ModernMainLayout';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { useNavigate } from 'react-router-dom';
-import { ShoppingCart, Megaphone, Building, Briefcase, Users, TrendingUp, Globe, Star } from 'lucide-react';
+import { ShoppingCart, Megaphone, Building, Briefcase, Users, TrendingUp, Globe, Star, Scale, FileCheck } from 'lucide-react';
 
 const gateways = [
   {
@@ -54,6 +54,30 @@ const gateways = [
     borderColor: 'border-orange-200',
     features: ['Verified Profiles', 'Rating System', 'Secure Payments', 'Global Network'],
     stats: { active: 156, suppliers: 89, freelancers: 67 }
+  },
+  {
+    id: 'commercial-arbitration',
+    title: 'Commercial Arbitration (ORDA)',
+    description: 'Resolve business disputes through online arbitration. Fast, fair, and cost-effective solutions.',
+    icon: Scale,
+    color: 'red',
+    bgColor: 'bg-red-50',
+    iconColor: 'text-red-600',
+    borderColor: 'border-red-200',
+    features: ['Expert Arbitrators', 'Digital Process', 'Binding Decisions', 'Cost Effective'],
+    stats: { active: 15, resolved: 124, satisfaction: '96%' }
+  },
+  {
+    id: 'contract-verification',
+    title: 'Contract Verification & Documentation',
+    description: 'Verify, document, and manage contracts with blockchain-backed security and IPFS storage.',
+    icon: FileCheck,
+    color: 'indigo',
+    bgColor: 'bg-indigo-50',
+    iconColor: 'text-indigo-600',
+    borderColor: 'border-indigo-200',
+    features: ['IPFS Storage', 'Digital Signatures', 'Smart Templates', 'Version Control'],
+    stats: { active: 42, verified: 256, templates: 18 }
   }
 ];
 
@@ -72,24 +96,24 @@ export default function GatewaysHub() {
           <div className="container px-4 md:px-6">
             <Globe className="mx-auto h-16 w-16 text-blue-600 mb-6" />
             <h1 className="text-4xl font-bold text-gray-900 mb-4">
-              Cooperative Gateways Hub
+              GPO Smart Platform - Cooperative Gateways Hub
             </h1>
             <p className="text-xl text-gray-600 max-w-3xl mx-auto mb-8">
-              Discover four powerful gateways designed to transform how you collaborate, 
-              purchase, market, and build businesses together.
+              Complete ecosystem for group purchasing, marketing cooperation, business incorporation, 
+              arbitration services, and professional networking.
             </p>
             <div className="flex justify-center gap-4 text-sm text-gray-500">
               <div className="flex items-center gap-1">
                 <Users className="h-4 w-4" />
-                <span>1,200+ Active Members</span>
+                <span>2,500+ Active Members</span>
               </div>
               <div className="flex items-center gap-1">
                 <TrendingUp className="h-4 w-4" />
-                <span>$2.5M+ in Savings</span>
+                <span>$5.2M+ in Savings</span>
               </div>
               <div className="flex items-center gap-1">
                 <Star className="h-4 w-4" />
-                <span>4.8/5 Satisfaction</span>
+                <span>4.9/5 Satisfaction</span>
               </div>
             </div>
           </div>
@@ -97,7 +121,7 @@ export default function GatewaysHub() {
 
         {/* Gateways Grid */}
         <div className="container px-4 md:px-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {gateways.map((gateway) => {
               const Icon = gateway.icon;
               return (
@@ -156,14 +180,16 @@ export default function GatewaysHub() {
                       className={`w-full ${gateway.color === 'blue' ? 'bg-blue-600 hover:bg-blue-700' :
                                           gateway.color === 'purple' ? 'bg-purple-600 hover:bg-purple-700' :
                                           gateway.color === 'green' ? 'bg-green-600 hover:bg-green-700' :
-                                          'bg-orange-600 hover:bg-orange-700'
+                                          gateway.color === 'orange' ? 'bg-orange-600 hover:bg-orange-700' :
+                                          gateway.color === 'red' ? 'bg-red-600 hover:bg-red-700' :
+                                          'bg-indigo-600 hover:bg-indigo-700'
                                 }`}
                       onClick={(e) => {
                         e.stopPropagation();
                         handleGatewayClick(gateway.id);
                       }}
                     >
-                      Explore Gateway
+                      Start Now
                     </Button>
                   </CardContent>
                 </Card>
@@ -176,11 +202,11 @@ export default function GatewaysHub() {
         <div className="bg-gray-50 py-12">
           <div className="container px-4 md:px-6 text-center">
             <h2 className="text-2xl font-bold text-gray-900 mb-4">
-              Ready to Start Collaborating?
+              Ready to Transform Your Business?
             </h2>
             <p className="text-gray-600 mb-6 max-w-2xl mx-auto">
-              Join thousands of members who are already saving money, expanding their reach, 
-              and building successful businesses together.
+              Join thousands of businesses already leveraging our cooperative platform 
+              for group purchasing, marketing, incorporation, and dispute resolution.
             </p>
             <div className="flex justify-center gap-4">
               <Button size="lg" onClick={() => navigate('/register')}>
