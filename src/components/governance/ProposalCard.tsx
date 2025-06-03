@@ -1,150 +1,122 @@
 
 import React from 'react';
-import { useNavigate } from 'react-router-dom';
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
-import { Link } from "react-router-dom";
+import { Calendar, Users, Clock } from "lucide-react";
 
-export interface ProposalCardProps {
-  proposal: {
-    id: number;
-    title: string;
-    description: string;
-    votesFor: number;
-    votesAgainst: number;
-    abstain: number;
-    quorum: number;
-    deadline: string;
-    category: string;
-    creator: string;
-    result?: string;
-    date?: string;
-  };
-  isActive?: boolean;
+interface Proposal {
+  id: number;
+  title: string;
+  description: string;
+  votesFor: number;
+  votesAgainst: number;
+  abstain: number;
+  quorum: number;
+  deadline: string;
+  category: string;
+  creator: string;
+  result?: string;
+  date?: string;
 }
 
-export const ProposalCard: React.FC<ProposalCardProps> = ({ proposal, isActive = true }) => {
-  const navigate = useNavigate();
+interface ProposalCardProps {
+  proposal: Proposal;
+  isPast?: boolean;
+}
+
+export const ProposalCard: React.FC<ProposalCardProps> = ({ proposal, isPast = false }) => {
+  const totalVotes = proposal.votesFor + proposal.votesAgainst + proposal.abstain;
+  const quorumProgress = (totalVotes / proposal.quorum) * 100;
   
-  const handleViewProposal = () => {
-    navigate(`/governance/proposals/${proposal.id}`);
+  const getStatusBadge = () => {
+    if (isPast) {
+      return proposal.result ? (
+        <Badge variant={proposal.result === 'تمت الموافقة' ? 'default' : 'destructive'}>
+          {proposal.result}
+        </Badge>
+      ) : (
+        <Badge variant="secondary">منتهي</Badge>
+      );
+    }
+    return <Badge variant="outline">نشط</Badge>;
   };
-  
-  if (isActive) {
-    return (
-      <Card className="overflow-hidden">
-        <CardHeader>
-          <div className="flex justify-between items-start">
-            <CardTitle>{proposal.title}</CardTitle>
-            <Badge className="bg-green-100 text-green-800 border-green-200">
-              {proposal.category}
-            </Badge>
+
+  return (
+    <Card className="hover:shadow-lg transition-shadow">
+      <CardHeader>
+        <div className="flex justify-between items-start">
+          <div className="flex-1">
+            <CardTitle className="text-lg mb-2">{proposal.title}</CardTitle>
+            <CardDescription className="text-sm text-gray-600">
+              {proposal.description}
+            </CardDescription>
           </div>
-          <CardDescription>{proposal.description}</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-4">
-            <div>
-              <div className="flex justify-between text-sm mb-1">
-                <span className="font-medium">{proposal.votesFor} صوت مع</span>
-                <span className="text-muted-foreground">{proposal.votesFor + proposal.votesAgainst + proposal.abstain} من أصل {proposal.quorum} المطلوب</span>
+          {getStatusBadge()}
+        </div>
+        
+        <div className="flex flex-wrap gap-2 text-sm text-gray-500 mt-3">
+          <div className="flex items-center gap-1">
+            <Users size={14} />
+            <span>المنشئ: {proposal.creator}</span>
+          </div>
+          <div className="flex items-center gap-1">
+            <Calendar size={14} />
+            <span>{isPast ? (proposal.date || proposal.deadline) : `ينتهي: ${proposal.deadline}`}</span>
+          </div>
+          <Badge variant="outline" className="text-xs">
+            {proposal.category}
+          </Badge>
+        </div>
+      </CardHeader>
+      
+      <CardContent className="space-y-4">
+        {!isPast && (
+          <>
+            <div className="space-y-2">
+              <div className="flex justify-between text-sm">
+                <span>نسبة المشاركة</span>
+                <span>{Math.round(quorumProgress)}%</span>
               </div>
-              <Progress value={((proposal.votesFor + proposal.votesAgainst + proposal.abstain) / proposal.quorum) * 100} />
+              <Progress value={quorumProgress} className="h-2" />
+              <div className="text-xs text-gray-500 text-center">
+                {totalVotes} من {proposal.quorum} صوت مطلوب
+              </div>
             </div>
             
-            <div className="grid grid-cols-3 gap-2 text-sm">
-              <div className="text-center p-2 bg-green-50 rounded">
-                <p className="font-medium">{proposal.votesFor}</p>
-                <p className="text-muted-foreground text-xs">مع</p>
+            <div className="grid grid-cols-3 gap-2 text-center text-sm">
+              <div className="p-2 bg-green-50 rounded">
+                <div className="font-semibold text-green-700">{proposal.votesFor}</div>
+                <div className="text-green-600">مع</div>
               </div>
-              <div className="text-center p-2 bg-red-50 rounded">
-                <p className="font-medium">{proposal.votesAgainst}</p>
-                <p className="text-muted-foreground text-xs">ضد</p>
+              <div className="p-2 bg-red-50 rounded">
+                <div className="font-semibold text-red-700">{proposal.votesAgainst}</div>
+                <div className="text-red-600">ضد</div>
               </div>
-              <div className="text-center p-2 bg-gray-50 rounded">
-                <p className="font-medium">{proposal.abstain}</p>
-                <p className="text-muted-foreground text-xs">امتناع</p>
-              </div>
-            </div>
-
-            <div className="grid grid-cols-2 gap-y-2 text-sm">
-              <div>
-                <p className="text-muted-foreground">الموعد النهائي</p>
-                <p className="font-medium">{proposal.deadline}</p>
-              </div>
-              <div>
-                <p className="text-muted-foreground">المنشئ</p>
-                <p className="font-medium">{proposal.creator}</p>
+              <div className="p-2 bg-gray-50 rounded">
+                <div className="font-semibold text-gray-700">{proposal.abstain}</div>
+                <div className="text-gray-600">امتناع</div>
               </div>
             </div>
+          </>
+        )}
+        
+        {isPast && proposal.result && (
+          <div className="text-center p-3 bg-gray-50 rounded">
+            <div className="text-sm text-gray-600 mb-1">النتيجة النهائية</div>
+            <div className="font-semibold">{proposal.result}</div>
           </div>
-        </CardContent>
-        <CardFooter className="flex justify-between">
-          <Button 
-            className="bg-green-500 hover:bg-green-600"
-            onClick={handleViewProposal}
-          >
-            عرض التفاصيل
-          </Button>
-          <Button variant="outline">
-            <Link to={`/governance/proposals/${proposal.id}`}>
-              صوّت الآن
-            </Link>
-          </Button>
-        </CardFooter>
-      </Card>
-    );
-  } else {
-    // Card for past proposals
-    return (
-      <Card>
-        <CardHeader>
-          <div className="flex justify-between items-start">
-            <CardTitle className="text-lg">{proposal.title}</CardTitle>
-            {proposal.result && (
-              <Badge className={proposal.result === "تمت الموافقة" ? 
-                "bg-green-100 text-green-800 border-green-200" : 
-                "bg-red-100 text-red-800 border-red-200"}>
-                {proposal.result}
-              </Badge>
-            )}
-          </div>
-          <CardDescription>{proposal.description}</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-4">
-            <div className="grid grid-cols-3 gap-2 text-sm">
-              <div className="text-center p-2 bg-green-50 rounded">
-                <p className="font-medium">{proposal.votesFor}</p>
-                <p className="text-muted-foreground text-xs">مع</p>
-              </div>
-              <div className="text-center p-2 bg-red-50 rounded">
-                <p className="font-medium">{proposal.votesAgainst}</p>
-                <p className="text-muted-foreground text-xs">ضد</p>
-              </div>
-              <div className="text-center p-2 bg-gray-50 rounded">
-                <p className="font-medium">{proposal.abstain}</p>
-                <p className="text-muted-foreground text-xs">امتناع</p>
-              </div>
-            </div>
-            <div>
-              <p className="text-muted-foreground text-sm">الفئة: {proposal.category}</p>
-              {proposal.date && <p className="text-muted-foreground text-sm">تاريخ الانتهاء: {proposal.date}</p>}
-            </div>
-          </div>
-        </CardContent>
-        <CardFooter>
-          <Button 
-            variant="outline" 
-            className="w-full"
-            onClick={handleViewProposal}
-          >
-            عرض التفاصيل
-          </Button>
-        </CardFooter>
-      </Card>
-    );
-  }
+        )}
+        
+        <Button 
+          variant="outline" 
+          className="w-full"
+          disabled={isPast}
+        >
+          {isPast ? 'عرض التفاصيل' : 'التصويت والمشاركة'}
+        </Button>
+      </CardContent>
+    </Card>
+  );
 };
