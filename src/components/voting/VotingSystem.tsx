@@ -56,8 +56,8 @@ export function VotingSystem({ proposals, onVote }: VotingSystemProps) {
     <div className="space-y-6">
       <div className="text-center py-6">
         <Vote className="mx-auto h-12 w-12 text-blue-600 mb-4" />
-        <h2 className="text-2xl font-bold text-gray-900 mb-2">Voting System</h2>
-        <p className="text-gray-600">Participate in democratic decision-making</p>
+        <h2 className="text-2xl font-bold text-gray-900 mb-2">نظام التصويت</h2>
+        <p className="text-gray-600">شارك في اتخاذ القرارات الديمقراطية</p>
       </div>
 
       <div className="grid gap-6">
@@ -74,9 +74,9 @@ export function VotingSystem({ proposals, onVote }: VotingSystemProps) {
                     variant="outline" 
                     className={proposal.status === 'active' ? 'bg-green-50 text-green-700' : 'bg-gray-50 text-gray-700'}
                   >
-                    {proposal.status}
+                    {proposal.status === 'active' ? 'نشط' : 'مكتمل'}
                   </Badge>
-                  <Badge variant="outline">{proposal.type} choice</Badge>
+                  <Badge variant="outline">{proposal.type === 'simple' ? 'اختيار واحد' : 'متعدد'}</Badge>
                 </div>
               </div>
             </CardHeader>
@@ -86,11 +86,11 @@ export function VotingSystem({ proposals, onVote }: VotingSystemProps) {
                 <div className="flex justify-between text-sm">
                   <span className="flex items-center gap-2">
                     <Users className="h-4 w-4" />
-                    Participation: {proposal.totalVotes}/{proposal.quorum}
+                    المشاركة: {proposal.totalVotes}/{proposal.quorum}
                   </span>
                   <span className="flex items-center gap-2">
                     <Clock className="h-4 w-4" />
-                    Deadline: {proposal.deadline}
+                    الموعد النهائي: {proposal.deadline}
                   </span>
                 </div>
                 <div className="w-full bg-gray-200 rounded-full h-2">
@@ -102,7 +102,7 @@ export function VotingSystem({ proposals, onVote }: VotingSystemProps) {
                 {getQuorumProgress(proposal) < 100 && (
                   <p className="text-sm text-amber-600 flex items-center gap-1">
                     <AlertTriangle className="h-4 w-4" />
-                    Need {proposal.quorum - proposal.totalVotes} more votes to reach quorum
+                    نحتاج {proposal.quorum - proposal.totalVotes} أصوات إضافية للوصول للنصاب
                   </p>
                 )}
               </div>
@@ -110,7 +110,7 @@ export function VotingSystem({ proposals, onVote }: VotingSystemProps) {
               {/* Voting Options */}
               {proposal.status === 'active' && (
                 <div className="space-y-4 p-4 bg-blue-50 rounded-lg">
-                  <Label className="text-lg font-medium">Cast Your Vote</Label>
+                  <Label className="text-lg font-medium">أدلِ بصوتك</Label>
                   <RadioGroup
                     value={selectedVotes[proposal.id] || ''}
                     onValueChange={(value) => setSelectedVotes(prev => ({ ...prev, [proposal.id]: value }))}
@@ -126,10 +126,10 @@ export function VotingSystem({ proposals, onVote }: VotingSystemProps) {
                   </RadioGroup>
                   
                   <div className="space-y-2">
-                    <Label htmlFor={`comment-${proposal.id}`}>Comment (Optional)</Label>
+                    <Label htmlFor={`comment-${proposal.id}`}>تعليق (اختياري)</Label>
                     <Textarea
                       id={`comment-${proposal.id}`}
-                      placeholder="Add a comment to explain your vote..."
+                      placeholder="أضف تعليقاً لتوضيح صوتك..."
                       value={comments[proposal.id] || ''}
                       onChange={(e) => setComments(prev => ({ ...prev, [proposal.id]: e.target.value }))}
                     />
@@ -140,14 +140,14 @@ export function VotingSystem({ proposals, onVote }: VotingSystemProps) {
                     disabled={!selectedVotes[proposal.id]}
                     className="w-full"
                   >
-                    Submit Vote
+                    إرسال التصويت
                   </Button>
                 </div>
               )}
 
               {/* Results */}
               <div className="space-y-4">
-                <Label className="text-lg font-medium">Current Results</Label>
+                <Label className="text-lg font-medium">النتائج الحالية</Label>
                 {proposal.options.map((option, index) => {
                   const votes = proposal.results[option] || 0;
                   const percentage = proposal.totalVotes > 0 ? (votes / proposal.totalVotes) * 100 : 0;
@@ -163,7 +163,7 @@ export function VotingSystem({ proposals, onVote }: VotingSystemProps) {
                           )}
                         </span>
                         <span className="text-sm text-gray-600">
-                          {votes} votes ({percentage.toFixed(1)}%)
+                          {votes} أصوات ({percentage.toFixed(1)}%)
                         </span>
                       </div>
                       <div className="w-full bg-gray-200 rounded-full h-2">
@@ -181,8 +181,8 @@ export function VotingSystem({ proposals, onVote }: VotingSystemProps) {
 
               {/* Proposal Info */}
               <div className="pt-4 border-t text-sm text-gray-600">
-                <p>Created by: {proposal.creator}</p>
-                <p>Proposal ID: {proposal.id}</p>
+                <p>منشئ المقترح: {proposal.creator}</p>
+                <p>رقم المقترح: {proposal.id}</p>
               </div>
             </CardContent>
           </Card>

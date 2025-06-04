@@ -1,3 +1,4 @@
+
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -17,6 +18,7 @@ import PortalFunder from "./pages/PortalFunder";
 import PortalFreelancer from "./pages/PortalFreelancer";
 import GovernancePortal from "./pages/GovernancePortal";
 import ProposalView from "./pages/ProposalView";
+import Workspace from "./pages/Workspace";
 
 // Import new gateway and portal pages
 import GatewaysHub from "./pages/GatewaysHub";
