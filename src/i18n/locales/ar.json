@@ -1,84 +1,58 @@
 
 {
-  "common": {
-    "login": "تسجيل الدخول",
-    "register": "إنشاء حساب",
-    "dashboard": "لوحة التحكم",
-    "profile": "الملف الشخصي",
-    "settings": "الإعدادات",
-    "logout": "تسجيل الخروج",
+  "nav": {
     "home": "الرئيسية",
-    "about": "حول",
-    "contact": "اتصل بنا",
-    "save": "حفظ",
-    "cancel": "إلغاء",
-    "edit": "تعديل",
-    "delete": "حذف",
-    "create": "إنشاء",
-    "update": "تحديث",
-    "search": "بحث",
-    "filter": "تصفية",
-    "sort": "ترتيب",
-    "loading": "جاري التحميل...",
-    "error": "خطأ",
-    "success": "نجح",
-    "warning": "تحذير",
-    "info": "معلومات"
-  },
-  "navigation": {
     "gateways": "البوابات",
-    "groups": "المجموعات",
-    "contracts": "العقود",
-    "voting": "التصويت",
-    "governance": "الحوكمة",
-    "notifications": "الإشعارات",
     "workspace": "مساحة العمل",
-    "system": "النظام"
-  },
-  "gateways": {
-    "group_buying": "الشراء التعاوني",
-    "cooperative_marketing": "التسويق التعاوني",
-    "suppliers_freelancers": "الموردين والمستقلين",
-    "company_incorporation": "تأسيس الشركات",
-    "contract_verification": "التحقق من العقود",
-    "commercial_arbitration": "التحكيم التجاري"
+    "governance": "الحوكمة",
+    "voting": "التصويت",
+    "contracts": "العقود",
+    "notifications": "الإشعارات"
   },
   "header": {
     "gregorian_date": "التاريخ الميلادي",
     "hijri_date": "التاريخ الهجري",
-    "current_time": "الوقت الحالي",
-    "country": "الدولة",
+    "time": "الوقت",
+    "country": "البلد",
     "currency": "العملة",
-    "language": "اللغة"
-  },
-  "workspace": {
-    "title": "مساحة العمل",
-    "role_switch": "تبديل الدور",
-    "member": "عضو",
-    "supplier": "مورد",
-    "freelancer": "مستقل",
-    "dashboard": "لوحة التحكم",
-    "projects": "المشاريع",
-    "proposals": "العروض",
-    "contracts": "العقود"
+    "language": "اللغة",
+    "notifications": "الإشعارات",
+    "profile": "الملف الشخصي",
+    "settings": "الإعدادات",
+    "logout": "تسجيل الخروج"
   },
   "voting": {
     "title": "نظام التصويت",
     "proposals": "المقترحات",
-    "vote": "صوت",
     "yes": "نعم",
     "no": "لا",
-    "abstain": "امتناع",
-    "results": "النتائج",
-    "deadline": "الموعد النهائي"
+    "abstain": "امتناع"
   },
-  "groups": {
-    "create": "إنشاء مجموعة",
-    "join": "انضمام للمجموعة",
-    "leave": "مغادرة المجموعة",
-    "members": "الأعضاء",
-    "description": "الوصف",
-    "type": "النوع",
-    "status": "الحالة"
+  "workspace": {
+    "title": "مساحة العمل",
+    "groups": "المجموعات",
+    "projects": "المشاريع",
+    "tasks": "المهام"
+  },
+  "common": {
+    "loading": "جاري التحميل...",
+    "save": "حفظ",
+    "cancel": "إلغاء",
+    "confirm": "تأكيد",
+    "edit": "تعديل",
+    "delete": "حذف",
+    "add": "إضافة",
+    "search": "بحث",
+    "filter": "تصفية",
+    "sort": "ترتيب"
+  },
+  "organization": {
+    "name": "منظمة الأعمال العالمية التعاونية",
+    "tagline": "منظمة معايير التجارة الدولية",
+    "standards": {
+      "wto": "معتمد من منظمة التجارة العالمية",
+      "harvard": "معايير هارفارد للأعمال",
+      "iso": "ISO 9001:2015"
+    }
   }
 }
