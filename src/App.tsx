@@ -1,4 +1,5 @@
 
+import React from 'react';
 import './i18n';
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
@@ -36,11 +37,18 @@ import SystemComponents from "./pages/SystemComponents";
 // Import dashboard components
 import { DashboardLayout } from "./components/dashboard/DashboardLayout";
 
-const queryClient = new QueryClient();
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      staleTime: 5 * 60 * 1000, // 5 minutes
+      retry: 1,
+    },
+  },
+});
 
 const App = () => (
-  <QueryClientProvider client={queryClient}>
-    <TooltipProvider>
+  <TooltipProvider>
+    <QueryClientProvider client={queryClient}>
       <SidebarProvider defaultOpen={false}>
         <RoleProvider>
           <Toaster />
@@ -90,8 +98,8 @@ const App = () => (
           </BrowserRouter>
         </RoleProvider>
       </SidebarProvider>
-    </TooltipProvider>
-  </QueryClientProvider>
+    </QueryClientProvider>
+  </TooltipProvider>
 );
 
 export default App;
