@@ -1,7 +1,7 @@
 
 import React from 'react';
-import { UnifiedHeaderBar } from './UnifiedHeaderBar';
+import { InternationalHeaderBar } from './InternationalHeaderBar';
 
 export function HeaderBar() {
-  return <UnifiedHeaderBar />;
+  return <InternationalHeaderBar />;
 }
