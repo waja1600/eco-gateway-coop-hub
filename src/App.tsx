@@ -22,17 +22,21 @@ import GovernancePortal from "./pages/GovernancePortal";
 import ProposalView from "./pages/ProposalView";
 import Workspace from "./pages/Workspace";
 
-// Import new gateway and portal pages
+// Import gateway and portal pages
 import GatewaysHub from "./pages/GatewaysHub";
 import GatewayDetails from "./pages/GatewayDetails";
 import VotingPortal from "./pages/VotingPortal";
 import ContractsPortal from "./pages/ContractsPortal";
 import NotificationsPortal from "./pages/NotificationsPortal";
 
-// Import new pages
+// Import new pages for GPO platform
 import GroupCreation from "./pages/GroupCreation";
 import GroupDetails from "./pages/GroupDetails";
 import SystemComponents from "./pages/SystemComponents";
+import GPODashboard from "./pages/GPODashboard";
+import RoleSelection from "./pages/RoleSelection";
+import ArbitrationPortal from "./pages/ArbitrationPortal";
+import IPFSDocumentManager from "./pages/IPFSDocumentManager";
 
 // Import dashboard components
 import { DashboardLayout } from "./components/dashboard/DashboardLayout";
@@ -59,6 +63,7 @@ const App = () => (
               <Route path="/" element={<ModernIndex />} />
               <Route path="/login" element={<Login />} />
               <Route path="/register" element={<Register />} />
+              <Route path="/role-selection" element={<RoleSelection />} />
               
               {/* Gateway routes */}
               <Route path="/gateways" element={<GatewaysHub />} />
@@ -80,12 +85,22 @@ const App = () => (
               
               {/* Contract & Document Management */}
               <Route path="/contracts" element={<ContractsPortal />} />
+              <Route path="/documents" element={<IPFSDocumentManager />} />
+              
+              {/* Arbitration Portal - ORDA */}
+              <Route path="/arbitration" element={<ArbitrationPortal />} />
               
               {/* Notifications */}
               <Route path="/notifications" element={<NotificationsPortal />} />
               
               {/* System Components */}
               <Route path="/system" element={<SystemComponents />} />
+              
+              {/* GPO Dashboard */}
+              <Route path="/gpo-dashboard" element={<GPODashboard />} />
+              
+              {/* Workspace */}
+              <Route path="/workspace" element={<Workspace />} />
               
               {/* Dashboard routes */}
               <Route path="/dashboard" element={<DashboardLayout />}>
