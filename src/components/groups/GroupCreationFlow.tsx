@@ -4,386 +4,447 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
-import { Users, User, Upload, ArrowRight, CheckCircle } from 'lucide-react';
+import { Users, Building, Briefcase, ShoppingCart, Megaphone, Scale, CheckCircle, ArrowRight, ArrowLeft } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-
-interface GroupFormData {
-  type: 'individual' | 'group';
-  name: string;
-  country: string;
-  sector: string;
-  purpose: string;
-  targetParticipants: number;
-  description: string;
-  rqfFile?: File;
-}
 
 interface GroupCreationFlowProps {
   gatewayType: string;
-  onSubmit: (data: GroupFormData) => void;
+  onSubmit: (data: any) => void;
 }
 
-const countries = [
-  'United States', 'United Kingdom', 'Germany', 'France', 'Canada', 
-  'Australia', 'Japan', 'South Korea', 'Singapore', 'UAE', 'Egypt', 'Saudi Arabia'
-];
-
-const sectors = [
-  'Technology', 'Healthcare', 'Finance', 'Manufacturing', 'Retail',
-  'Education', 'Energy', 'Transportation', 'Real Estate', 'Agriculture'
-];
-
 export function GroupCreationFlow({ gatewayType, onSubmit }: GroupCreationFlowProps) {
-  const [step, setStep] = useState(1);
-  const [formData, setFormData] = useState<GroupFormData>({
-    type: 'group',
-    name: '',
-    country: '',
-    sector: '',
-    purpose: '',
-    targetParticipants: 3,
-    description: ''
-  });
   const { toast } = useToast();
+  const [currentStep, setCurrentStep] = useState(1);
+  const [formData, setFormData] = useState({
+    name: '',
+    description: '',
+    type: 'group',
+    gateway: gatewayType,
+    sector: '',
+    country: '',
+    targetParticipants: 5,
+    budget: '',
+    timeline: '',
+    requirements: '',
+    legalFramework: '',
+    jurisdiction: '',
+    businessModel: '',
+    complianceLevel: 'ISO',
+    tradingStandards: 'WTO'
+  });
 
-  const handleTypeSelection = (type: 'individual' | 'group') => {
-    setFormData({ ...formData, type });
-    setStep(2);
+  const gatewayConfig = {
+    'group-buying': {
+      title: 'مجموعة الشراء التعاوني',
+      icon: ShoppingCart,
+      color: 'blue',
+      steps: ['الأساسيات', 'التفاصيل', 'المتطلبات', 'المراجعة']
+    },
+    'cooperative-marketing': {
+      title: 'التسويق التعاوني',
+      icon: Megaphone,
+      color: 'purple',
+      steps: ['الأساسيات', 'الحملة', 'الميزانية', 'المراجعة']
+    },
+    'company-incorporation': {
+      title: 'تأسيس الشركات',
+      icon: Building,
+      color: 'green',
+      steps: ['الأساسيات', 'المساهمون', 'القوانين', 'المراجعة']
+    },
+    'suppliers-freelancers': {
+      title: 'الموردين والمستقلين',
+      icon: Briefcase,
+      color: 'orange',
+      steps: ['الأساسيات', 'المتطلبات', 'المعايير', 'المراجعة']
+    },
+    'commercial-arbitration': {
+      title: 'التحكيم التجاري',
+      icon: Scale,
+      color: 'red',
+      steps: ['الأساسيات', 'النزاع', 'الإجراءات', 'المراجعة']
+    }
   };
 
-  const handleInputChange = (field: keyof GroupFormData, value: string | number) => {
-    setFormData({ ...formData, [field]: value });
+  const config = gatewayConfig[gatewayType as keyof typeof gatewayConfig] || gatewayConfig['group-buying'];
+  const totalSteps = config.steps.length;
+
+  const handleNext = () => {
+    if (currentStep < totalSteps) {
+      setCurrentStep(currentStep + 1);
+    }
   };
 
-  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      setFormData({ ...formData, rqfFile: file });
+  const handlePrevious = () => {
+    if (currentStep > 1) {
+      setCurrentStep(currentStep - 1);
     }
   };
 
   const handleSubmit = () => {
-    // Validation
-    if (!formData.name || !formData.country || !formData.sector || !formData.purpose) {
-      toast({
-        title: "Missing Information",
-        description: "Please fill in all required fields.",
-        variant: "destructive"
-      });
-      return;
-    }
-
-    if (formData.type === 'group' && formData.targetParticipants < 3) {
-      toast({
-        title: "Invalid Group Size",
-        description: "Group contracts require a minimum of 3 members.",
-        variant: "destructive"
-      });
-      return;
-    }
-
-    onSubmit(formData);
-    setStep(4);
-    
     toast({
-      title: "Group Created Successfully",
-      description: "Your group has been sent for review and will appear in your dashboard shortly.",
+      title: "تم إنشاء المجموعة بنجاح",
+      description: "سيتم مراجعة طلبك وإشعارك بالنتيجة",
     });
+    onSubmit(formData);
   };
 
-  if (step === 1) {
-    return (
-      <div className="max-w-2xl mx-auto space-y-6">
-        <div className="text-center">
-          <h2 className="text-2xl font-bold text-gray-900 mb-2">Choose Contract Type</h2>
-          <p className="text-gray-600">Select whether you want to create an individual or group contract</p>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <Card 
-            className="cursor-pointer hover:shadow-lg transition-shadow border-2 hover:border-blue-300"
-            onClick={() => handleTypeSelection('individual')}
-          >
-            <CardHeader className="text-center">
-              <User className="mx-auto h-12 w-12 text-blue-600 mb-4" />
-              <CardTitle>Individual Contract</CardTitle>
-              <CardDescription>
-                Create a contract for individual use. Perfect for personal projects or single-entity needs.
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="text-center">
-                <Badge variant="outline" className="mb-4">Single User</Badge>
-                <ul className="text-sm text-gray-600 space-y-1">
-                  <li>• Immediate processing</li>
-                  <li>• Lower fees</li>
-                  <li>• Quick setup</li>
-                </ul>
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card 
-            className="cursor-pointer hover:shadow-lg transition-shadow border-2 hover:border-green-300"
-            onClick={() => handleTypeSelection('group')}
-          >
-            <CardHeader className="text-center">
-              <Users className="mx-auto h-12 w-12 text-green-600 mb-4" />
-              <CardTitle>Group Contract</CardTitle>
-              <CardDescription>
-                Create a collaborative contract for multiple parties. Minimum 3 members required.
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="text-center">
-                <Badge variant="outline" className="mb-4">3+ Members</Badge>
-                <ul className="text-sm text-gray-600 space-y-1">
-                  <li>• Shared costs & benefits</li>
-                  <li>• Voting mechanisms</li>
-                  <li>• Collaborative features</li>
-                </ul>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-      </div>
-    );
-  }
-
-  if (step === 2) {
-    return (
-      <div className="max-w-2xl mx-auto space-y-6">
-        <div className="text-center">
-          <h2 className="text-2xl font-bold text-gray-900 mb-2">Group Information</h2>
-          <p className="text-gray-600">Provide details about your {formData.type} contract</p>
-        </div>
-
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              {formData.type === 'group' ? <Users className="h-5 w-5" /> : <User className="h-5 w-5" />}
-              {formData.type === 'group' ? 'Group' : 'Individual'} Contract Details
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Contract Name *
-                </label>
-                <Input
-                  placeholder="Enter contract name"
-                  value={formData.name}
-                  onChange={(e) => handleInputChange('name', e.target.value)}
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Country *
-                </label>
-                <select
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                  value={formData.country}
-                  onChange={(e) => handleInputChange('country', e.target.value)}
-                >
-                  <option value="">Select Country</option>
-                  {countries.map(country => (
-                    <option key={country} value={country}>{country}</option>
-                  ))}
-                </select>
-              </div>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Sector *
-                </label>
-                <select
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                  value={formData.sector}
-                  onChange={(e) => handleInputChange('sector', e.target.value)}
-                >
-                  <option value="">Select Sector</option>
-                  {sectors.map(sector => (
-                    <option key={sector} value={sector}>{sector}</option>
-                  ))}
-                </select>
-              </div>
-              {formData.type === 'group' && (
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Target Participants
-                  </label>
-                  <Input
-                    type="number"
-                    min="3"
-                    placeholder="Minimum 3 for groups"
-                    value={formData.targetParticipants}
-                    onChange={(e) => handleInputChange('targetParticipants', parseInt(e.target.value) || 3)}
-                  />
-                </div>
-              )}
-            </div>
-
+  const renderStepContent = () => {
+    switch (currentStep) {
+      case 1:
+        return (
+          <div className="space-y-6">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Purpose *
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                اسم المجموعة *
               </label>
               <Input
-                placeholder="Brief purpose of this contract"
-                value={formData.purpose}
-                onChange={(e) => handleInputChange('purpose', e.target.value)}
+                placeholder="اختر اسماً واضحاً ومعبراً"
+                value={formData.name}
+                onChange={(e) => setFormData({...formData, name: e.target.value})}
+                required
               />
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Description
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                وصف المجموعة *
               </label>
               <Textarea
-                placeholder="Detailed description of the contract objectives and requirements"
-                rows={4}
+                placeholder="اشرح الهدف من المجموعة والخدمات المطلوبة"
                 value={formData.description}
-                onChange={(e) => handleInputChange('description', e.target.value)}
+                onChange={(e) => setFormData({...formData, description: e.target.value})}
+                className="min-h-[100px]"
+                required
+              />
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  نوع المجموعة
+                </label>
+                <Select value={formData.type} onValueChange={(value) => setFormData({...formData, type: value})}>
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="individual">فردي</SelectItem>
+                    <SelectItem value="group">جماعي</SelectItem>
+                    <SelectItem value="corporate">شركات</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  القطاع
+                </label>
+                <Select value={formData.sector} onValueChange={(value) => setFormData({...formData, sector: value})}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="اختر القطاع" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="technology">التكنولوجيا</SelectItem>
+                    <SelectItem value="manufacturing">التصنيع</SelectItem>
+                    <SelectItem value="healthcare">الصحة</SelectItem>
+                    <SelectItem value="finance">المالية</SelectItem>
+                    <SelectItem value="retail">التجارة</SelectItem>
+                    <SelectItem value="education">التعليم</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                الدولة
+              </label>
+              <Select value={formData.country} onValueChange={(value) => setFormData({...formData, country: value})}>
+                <SelectTrigger>
+                  <SelectValue placeholder="اختر الدولة" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="saudi-arabia">السعودية</SelectItem>
+                  <SelectItem value="uae">الإمارات</SelectItem>
+                  <SelectItem value="egypt">مصر</SelectItem>
+                  <SelectItem value="jordan">الأردن</SelectItem>
+                  <SelectItem value="kuwait">الكويت</SelectItem>
+                  <SelectItem value="qatar">قطر</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+        );
+
+      case 2:
+        return (
+          <div className="space-y-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  عدد الأعضاء المستهدف
+                </label>
+                <Input
+                  type="number"
+                  placeholder="5"
+                  value={formData.targetParticipants}
+                  onChange={(e) => setFormData({...formData, targetParticipants: parseInt(e.target.value)})}
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  الميزانية المتوقعة
+                </label>
+                <Input
+                  placeholder="10,000 ريال"
+                  value={formData.budget}
+                  onChange={(e) => setFormData({...formData, budget: e.target.value})}
+                />
+              </div>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                الجدول الزمني
+              </label>
+              <Input
+                placeholder="3 أشهر"
+                value={formData.timeline}
+                onChange={(e) => setFormData({...formData, timeline: e.target.value})}
               />
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                RQF or Supporting Documents (Optional)
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                متطلبات العضوية
               </label>
-              <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-gray-400 transition-colors">
-                <Upload className="mx-auto h-8 w-8 text-gray-400 mb-2" />
-                <p className="text-sm text-gray-600 mb-2">Upload RQF or other supporting documents</p>
-                <input
-                  type="file"
-                  className="hidden"
-                  id="file-upload"
-                  onChange={handleFileUpload}
-                  accept=".pdf,.doc,.docx,.txt"
-                />
-                <label htmlFor="file-upload" className="cursor-pointer text-blue-600 hover:text-blue-700">
-                  Choose File
-                </label>
-                {formData.rqfFile && (
-                  <p className="text-sm text-green-600 mt-2">
-                    File selected: {formData.rqfFile.name}
-                  </p>
-                )}
-              </div>
+              <Textarea
+                placeholder="اذكر المتطلبات اللازمة للانضمام للمجموعة"
+                value={formData.requirements}
+                onChange={(e) => setFormData({...formData, requirements: e.target.value})}
+                className="min-h-[100px]"
+              />
             </div>
-          </CardContent>
-        </Card>
+          </div>
+        );
 
-        <div className="flex justify-between">
-          <Button variant="outline" onClick={() => setStep(1)}>
-            Back
-          </Button>
-          <Button onClick={() => setStep(3)}>
-            Review & Submit
-            <ArrowRight className="ml-2 h-4 w-4" />
-          </Button>
-        </div>
-      </div>
-    );
-  }
+      case 3:
+        return (
+          <div className="space-y-6">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                الإطار القانوني
+              </label>
+              <Select value={formData.legalFramework} onValueChange={(value) => setFormData({...formData, legalFramework: value})}>
+                <SelectTrigger>
+                  <SelectValue placeholder="اختر الإطار القانوني" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="shariah">الشريعة الإسلامية</SelectItem>
+                  <SelectItem value="civil">القانون المدني</SelectItem>
+                  <SelectItem value="commercial">القانون التجاري</SelectItem>
+                  <SelectItem value="international">القانون الدولي</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
 
-  if (step === 3) {
-    return (
-      <div className="max-w-2xl mx-auto space-y-6">
-        <div className="text-center">
-          <h2 className="text-2xl font-bold text-gray-900 mb-2">Review Your Contract</h2>
-          <p className="text-gray-600">Please review the information before submission</p>
-        </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                الاختصاص القضائي
+              </label>
+              <Select value={formData.jurisdiction} onValueChange={(value) => setFormData({...formData, jurisdiction: value})}>
+                <SelectTrigger>
+                  <SelectValue placeholder="اختر المحكمة المختصة" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="local">المحاكم المحلية</SelectItem>
+                  <SelectItem value="commercial">المحاكم التجارية</SelectItem>
+                  <SelectItem value="arbitration">التحكيم التجاري</SelectItem>
+                  <SelectItem value="international">التحكيم الدولي</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
 
-        <Card>
-          <CardHeader>
-            <CardTitle>Contract Summary</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <label className="text-sm font-medium text-gray-500">Type</label>
-                <p className="font-medium capitalize">{formData.type} Contract</p>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  مستوى الامتثال
+                </label>
+                <Select value={formData.complianceLevel} onValueChange={(value) => setFormData({...formData, complianceLevel: value})}>
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="ISO">معايير ISO</SelectItem>
+                    <SelectItem value="WTO">معايير WTO</SelectItem>
+                    <SelectItem value="OHSAS">معايير OHSAS</SelectItem>
+                    <SelectItem value="HACCP">معايير HACCP</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
+
               <div>
-                <label className="text-sm font-medium text-gray-500">Name</label>
-                <p className="font-medium">{formData.name}</p>
-              </div>
-              <div>
-                <label className="text-sm font-medium text-gray-500">Country</label>
-                <p className="font-medium">{formData.country}</p>
-              </div>
-              <div>
-                <label className="text-sm font-medium text-gray-500">Sector</label>
-                <p className="font-medium">{formData.sector}</p>
-              </div>
-              {formData.type === 'group' && (
-                <div>
-                  <label className="text-sm font-medium text-gray-500">Target Participants</label>
-                  <p className="font-medium">{formData.targetParticipants} members</p>
-                </div>
-              )}
-              <div>
-                <label className="text-sm font-medium text-gray-500">Purpose</label>
-                <p className="font-medium">{formData.purpose}</p>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  معايير التجارة
+                </label>
+                <Select value={formData.tradingStandards} onValueChange={(value) => setFormData({...formData, tradingStandards: value})}>
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="WTO">منظمة التجارة العالمية</SelectItem>
+                    <SelectItem value="UNIDO">منظمة التنمية الصناعية</SelectItem>
+                    <SelectItem value="UNCTAD">مؤتمر التجارة والتنمية</SelectItem>
+                    <SelectItem value="GATT">الاتفاقية العامة للتعريفات</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
             </div>
-            
-            {formData.description && (
-              <div>
-                <label className="text-sm font-medium text-gray-500">Description</label>
+          </div>
+        );
+
+      case 4:
+        return (
+          <div className="space-y-6">
+            <div className="bg-gray-50 p-6 rounded-lg">
+              <h3 className="text-lg font-semibold mb-4">مراجعة بيانات المجموعة</h3>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <span className="text-sm text-gray-500">الاسم:</span>
+                  <p className="font-medium">{formData.name}</p>
+                </div>
+                <div>
+                  <span className="text-sm text-gray-500">النوع:</span>
+                  <p className="font-medium">{formData.type}</p>
+                </div>
+                <div>
+                  <span className="text-sm text-gray-500">القطاع:</span>
+                  <p className="font-medium">{formData.sector}</p>
+                </div>
+                <div>
+                  <span className="text-sm text-gray-500">الدولة:</span>
+                  <p className="font-medium">{formData.country}</p>
+                </div>
+                <div>
+                  <span className="text-sm text-gray-500">عدد الأعضاء:</span>
+                  <p className="font-medium">{formData.targetParticipants}</p>
+                </div>
+                <div>
+                  <span className="text-sm text-gray-500">الميزانية:</span>
+                  <p className="font-medium">{formData.budget}</p>
+                </div>
+              </div>
+
+              <div className="mt-4">
+                <span className="text-sm text-gray-500">الوصف:</span>
                 <p className="font-medium">{formData.description}</p>
               </div>
-            )}
 
-            {formData.rqfFile && (
-              <div>
-                <label className="text-sm font-medium text-gray-500">Attached File</label>
-                <p className="font-medium">{formData.rqfFile.name}</p>
+              <div className="flex flex-wrap gap-2 mt-4">
+                <Badge variant="outline">{formData.complianceLevel}</Badge>
+                <Badge variant="outline">{formData.tradingStandards}</Badge>
+                <Badge variant="outline">{formData.legalFramework}</Badge>
               </div>
-            )}
-          </CardContent>
-        </Card>
+            </div>
 
-        <div className="flex justify-between">
-          <Button variant="outline" onClick={() => setStep(2)}>
-            Back to Edit
+            <div className="bg-blue-50 p-4 rounded-lg">
+              <div className="flex items-center gap-2 mb-2">
+                <CheckCircle className="h-5 w-5 text-blue-600" />
+                <span className="font-medium text-blue-900">الخطوات التالية</span>
+              </div>
+              <ul className="text-sm text-blue-800 space-y-1">
+                <li>• سيتم مراجعة طلبك خلال 24 ساعة</li>
+                <li>• ستحصل على إشعار بحالة الموافقة</li>
+                <li>• يمكنك دعوة الأعضاء بعد الموافقة</li>
+                <li>• ستبدأ عملية التفاوض والتصويت</li>
+              </ul>
+            </div>
+          </div>
+        );
+
+      default:
+        return null;
+    }
+  };
+
+  return (
+    <Card className="max-w-4xl mx-auto">
+      <CardHeader>
+        <div className="flex items-center gap-3 mb-4">
+          <div className={`p-3 rounded-lg bg-${config.color}-50`}>
+            <config.icon className={`h-8 w-8 text-${config.color}-600`} />
+          </div>
+          <div>
+            <CardTitle className="text-xl">{config.title}</CardTitle>
+            <CardDescription>إنشاء مجموعة جديدة للتعاون الذكي</CardDescription>
+          </div>
+        </div>
+
+        {/* Progress Steps */}
+        <div className="flex items-center justify-between mb-6">
+          {config.steps.map((step, index) => (
+            <div key={index} className="flex items-center">
+              <div className={`flex items-center justify-center w-8 h-8 rounded-full text-sm font-medium ${
+                index + 1 <= currentStep 
+                  ? `bg-${config.color}-600 text-white` 
+                  : 'bg-gray-200 text-gray-600'
+              }`}>
+                {index + 1}
+              </div>
+              <span className={`ml-2 text-sm ${
+                index + 1 <= currentStep ? 'text-gray-900' : 'text-gray-500'
+              }`}>
+                {step}
+              </span>
+              {index < config.steps.length - 1 && (
+                <div className={`mx-4 h-0.5 w-12 ${
+                  index + 1 < currentStep ? `bg-${config.color}-600` : 'bg-gray-200'
+                }`} />
+              )}
+            </div>
+          ))}
+        </div>
+      </CardHeader>
+
+      <CardContent>
+        {renderStepContent()}
+
+        {/* Navigation Buttons */}
+        <div className="flex justify-between mt-8">
+          <Button
+            variant="outline"
+            onClick={handlePrevious}
+            disabled={currentStep === 1}
+            className="flex items-center gap-2"
+          >
+            <ArrowLeft className="h-4 w-4" />
+            السابق
           </Button>
-          <Button onClick={handleSubmit} className="bg-green-600 hover:bg-green-700">
-            Submit Contract
-            <CheckCircle className="ml-2 h-4 w-4" />
-          </Button>
-        </div>
-      </div>
-    );
-  }
 
-  if (step === 4) {
-    return (
-      <div className="max-w-2xl mx-auto text-center space-y-6">
-        <div className="mx-auto w-20 h-20 bg-green-100 text-green-600 rounded-full flex items-center justify-center">
-          <CheckCircle className="h-12 w-12" />
+          {currentStep < totalSteps ? (
+            <Button
+              onClick={handleNext}
+              className={`bg-${config.color}-600 hover:bg-${config.color}-700 flex items-center gap-2`}
+            >
+              التالي
+              <ArrowRight className="h-4 w-4" />
+            </Button>
+          ) : (
+            <Button
+              onClick={handleSubmit}
+              className={`bg-${config.color}-600 hover:bg-${config.color}-700 flex items-center gap-2`}
+            >
+              <CheckCircle className="h-4 w-4" />
+              إنشاء المجموعة
+            </Button>
+          )}
         </div>
-        <h2 className="text-2xl font-bold text-gray-900">Contract Submitted Successfully!</h2>
-        <p className="text-gray-600">
-          Your {formData.type} contract has been sent for review. You will receive a notification 
-          once it's approved and it will appear in your dashboard with a "Pending Review" status.
-        </p>
-        <div className="bg-blue-50 p-4 rounded-lg">
-          <p className="text-sm text-blue-800">
-            <strong>Next Steps:</strong> Our team will review your contract within 24-48 hours. 
-            You'll be notified via email when it's ready to proceed.
-          </p>
-        </div>
-        <Button onClick={() => window.location.href = '/dashboard'} className="w-full">
-          Go to Dashboard
-        </Button>
-      </div>
-    );
-  }
-
-  return null;
+      </CardContent>
+    </Card>
+  );
 }
