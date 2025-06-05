@@ -10,36 +10,45 @@ import { Plus, Search, Filter, Users, Briefcase, DollarSign } from 'lucide-react
 const mockGroups = [
   {
     id: 1,
-    name: 'Tech Suppliers Collective',
-    description: 'Group purchasing of technology equipment and software licenses for small businesses.',
+    name: 'مجموعة موردي التكنولوجيا',
+    description: 'شراء جماعي لمعدات التكنولوجيا وتراخيص البرمجيات للشركات الصغيرة.',
     type: 'group' as const,
     memberCount: 15,
-    category: 'Technology',
-    location: 'New York, USA',
+    category: 'التكنولوجيا',
+    location: 'نيويورك، الولايات المتحدة',
     status: 'active' as const,
-    lastActivity: '2 hours ago',
+    lastActivity: 'منذ ساعتين',
+    requestType: 'purchase' as const,
+    votingStatus: 'open' as const,
+    activeVotes: 2,
   },
   {
     id: 2,
-    name: 'Green Energy Project',
-    description: 'Crowdfunding renewable energy solutions for rural communities.',
+    name: 'مشروع الطاقة الخضراء',
+    description: 'تمويل جماعي لحلول الطاقة المتجددة للمجتمعات الريفية.',
     type: 'group' as const,
     memberCount: 8,
-    category: 'Energy',
-    location: 'Berlin, Germany',
+    category: 'الطاقة',
+    location: 'برلين، ألمانيا',
     status: 'pending' as const,
-    lastActivity: '1 day ago',
+    lastActivity: 'منذ يوم واحد',
+    requestType: 'marketing' as const,
+    votingStatus: 'pending' as const,
+    activeVotes: 1,
   },
   {
     id: 3,
-    name: 'Solo Web Developer',
-    description: 'Independent web developer seeking freelance opportunities and collaboration.',
+    name: 'مطور ويب مستقل',
+    description: 'مطور ويب مستقل يبحث عن فرص العمل الحر والتعاون.',
     type: 'solo' as const,
     memberCount: 1,
-    category: 'Technology',
-    location: 'Remote',
+    category: 'التكنولوجيا',
+    location: 'عن بُعد',
     status: 'active' as const,
-    lastActivity: '30 minutes ago',
+    lastActivity: 'منذ 30 دقيقة',
+    requestType: 'service' as const,
+    votingStatus: 'closed' as const,
+    activeVotes: 0,
   },
 ];
 
@@ -54,14 +63,16 @@ export function ModernHomepage() {
       ...groupData,
       memberCount: groupData.type === 'solo' ? 1 : 3,
       status: 'active' as const,
-      lastActivity: 'Just now',
+      lastActivity: 'الآن',
+      votingStatus: 'pending' as const,
+      activeVotes: 0,
     };
     setGroups([newGroup, ...groups]);
   };
 
   const handleViewGroup = (groupId: number) => {
-    console.log('Viewing group:', groupId);
-    // Navigate to group detail page
+    console.log('عرض المجموعة:', groupId);
+    // التنقل إلى صفحة تفاصيل المجموعة
   };
 
   const filteredGroups = groups.filter(group =>
@@ -72,8 +83,8 @@ export function ModernHomepage() {
 
   const groupsByType = {
     all: filteredGroups,
-    purchase: filteredGroups.filter(g => g.category === 'Technology' || g.category === 'Manufacturing'),
-    funding: filteredGroups.filter(g => g.category === 'Energy' || g.category === 'Finance'),
+    purchase: filteredGroups.filter(g => g.requestType === 'purchase'),
+    funding: filteredGroups.filter(g => g.requestType === 'marketing'),
     freelancer: filteredGroups.filter(g => g.type === 'solo'),
   };
 
@@ -84,10 +95,10 @@ export function ModernHomepage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <div className="text-center">
             <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
-              Active Cooperative Groups
+              المجموعات التعاونية النشطة
             </h1>
             <p className="text-lg text-gray-600 mb-8 max-w-2xl mx-auto">
-              Join existing groups or create your own for collective purchasing, project funding, and freelance collaboration.
+              انضم إلى مجموعات موجودة أو أنشئ مجموعتك الخاصة للشراء الجماعي، تمويل المشاريع، والتعاون في العمل الحر.
             </p>
             
             <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
@@ -96,17 +107,17 @@ export function ModernHomepage() {
                 className="bg-blue-600 hover:bg-blue-700 px-6 py-3 text-lg"
               >
                 <Plus className="h-5 w-5 mr-2" />
-                Create New Group
+                إنشاء مجموعة جديدة
               </Button>
               
               <div className="flex gap-2 text-sm text-gray-500">
                 <div className="flex items-center">
                   <Users className="h-4 w-4 mr-1" />
-                  <span>{groups.filter(g => g.type === 'group').length} Groups</span>
+                  <span>{groups.filter(g => g.type === 'group').length} مجموعة</span>
                 </div>
                 <div className="flex items-center">
                   <Briefcase className="h-4 w-4 mr-1" />
-                  <span>{groups.filter(g => g.type === 'solo').length} Solo</span>
+                  <span>{groups.filter(g => g.type === 'solo').length} فردي</span>
                 </div>
               </div>
             </div>
@@ -121,7 +132,7 @@ export function ModernHomepage() {
           <div className="relative flex-1">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
             <Input
-              placeholder="Search groups by name, description, or category..."
+              placeholder="البحث في المجموعات بالاسم، الوصف، أو الفئة..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               className="pl-10"
@@ -129,7 +140,7 @@ export function ModernHomepage() {
           </div>
           <Button variant="outline" className="flex items-center">
             <Filter className="h-4 w-4 mr-2" />
-            Filter
+            تصفية
           </Button>
         </div>
 
@@ -138,19 +149,19 @@ export function ModernHomepage() {
           <TabsList className="grid w-full grid-cols-4 mb-8">
             <TabsTrigger value="all" className="flex items-center">
               <Users className="h-4 w-4 mr-1" />
-              All Groups
+              جميع المجموعات
             </TabsTrigger>
             <TabsTrigger value="purchase" className="flex items-center">
               <DollarSign className="h-4 w-4 mr-1" />
-              Purchase
+              الشراء
             </TabsTrigger>
             <TabsTrigger value="funding" className="flex items-center">
               <DollarSign className="h-4 w-4 mr-1" />
-              Funding
+              التمويل
             </TabsTrigger>
             <TabsTrigger value="freelancer" className="flex items-center">
               <Briefcase className="h-4 w-4 mr-1" />
-              Freelancer
+              المستقلين
             </TabsTrigger>
           </TabsList>
 
@@ -168,12 +179,12 @@ export function ModernHomepage() {
                 </div>
               ) : (
                 <div className="text-center py-12">
-                  <p className="text-gray-500 mb-4">No groups found matching your criteria.</p>
+                  <p className="text-gray-500 mb-4">لا توجد مجموعات تطابق معاييرك.</p>
                   <Button
                     onClick={() => setIsCreateModalOpen(true)}
                     variant="outline"
                   >
-                    Create the first group
+                    إنشاء أول مجموعة
                   </Button>
                 </div>
               )}
