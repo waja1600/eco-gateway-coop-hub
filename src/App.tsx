@@ -32,6 +32,8 @@ import NotificationsPortal from "./pages/NotificationsPortal";
 // Import new pages for GPO platform
 import GroupCreation from "./pages/GroupCreation";
 import GroupDetails from "./pages/GroupDetails";
+import GroupJoin from "./pages/GroupJoin";
+import SubmitOffer from "./pages/SubmitOffer";
 import SystemComponents from "./pages/SystemComponents";
 import GPODashboard from "./pages/GPODashboard";
 import RoleSelection from "./pages/RoleSelection";
@@ -72,6 +74,8 @@ const App = () => (
               
               {/* Group management routes */}
               <Route path="/groups/:groupId" element={<GroupDetails />} />
+              <Route path="/groups/:groupId/join" element={<GroupJoin />} />
+              <Route path="/groups/:groupId/submit-offer" element={<SubmitOffer />} />
               
               {/* Portal routes */}
               <Route path="/portals/supplier" element={<PortalSupplier />} />

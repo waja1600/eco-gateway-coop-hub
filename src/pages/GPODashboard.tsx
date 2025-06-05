@@ -1,164 +1,110 @@
 
 import React, { useState } from 'react';
-import { useTranslation } from 'react-i18next';
 import { ModernMainLayout } from '@/layouts/ModernMainLayout';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { useRole } from '@/components/auth/RoleBasedAccess';
-import { useNavigate } from 'react-router-dom';
+import { Badge } from '@/components/ui/badge';
+import { Progress } from '@/components/ui/progress';
 import { 
   Users, 
   Building, 
-  Briefcase, 
-  Scale, 
-  FileText, 
-  Vote,
+  DollarSign, 
+  TrendingUp, 
+  Calendar, 
+  FileText,
+  BarChart3,
+  Activity,
+  Settings,
+  Bell,
   Globe,
-  TrendingUp,
   Shield,
-  Award,
-  Clock,
-  DollarSign
+  CheckCircle,
+  AlertTriangle,
+  Clock
 } from 'lucide-react';
 
 export default function GPODashboard() {
-  const { t } = useTranslation();
-  const { user } = useRole();
-  const navigate = useNavigate();
-  const [activeStats, setActiveStats] = useState({
+  const [activeTab, setActiveTab] = useState('overview');
+
+  // Mock data
+  const stats = {
     totalGroups: 24,
-    activeNegotiations: 12,
-    completedContracts: 156,
-    totalSavings: 2500000,
-    activeSuppliers: 89,
-    verifiedFreelancers: 145,
-    pendingArbitrations: 3
-  });
+    activeMembers: 156,
+    totalSavings: 245000,
+    completedDeals: 18,
+    pendingProposals: 7,
+    arbitrationCases: 2
+  };
 
-  const gateways = [
-    {
-      id: 'group-buying',
-      title: t('gateways.group_buying'),
-      description: 'منصة الشراء التعاوني والتفاوض الجماعي مع الموردين',
-      icon: Users,
-      color: 'bg-blue-500',
-      activeGroups: 8,
-      path: '/gateways/group-buying'
-    },
-    {
-      id: 'cooperative-marketing',
-      title: t('gateways.cooperative_marketing'),
-      description: 'التسويق التعاوني والحملات المشتركة',
-      icon: TrendingUp,
-      color: 'bg-green-500',
-      activeGroups: 5,
-      path: '/gateways/cooperative-marketing'
-    },
-    {
-      id: 'company-incorporation',
-      title: t('gateways.company_incorporation'),
-      description: 'تأسيس الشركات والكيانات القانونية بالمشاركة',
-      icon: Building,
-      color: 'bg-purple-500',
-      activeGroups: 3,
-      path: '/gateways/company-incorporation'
-    },
-    {
-      id: 'suppliers-freelancers',
-      title: t('gateways.suppliers_freelancers'),
-      description: 'منصة الموردين والمستقلين المعتمدين',
-      icon: Briefcase,
-      color: 'bg-orange-500',
-      activeGroups: 6,
-      path: '/gateways/suppliers-freelancers'
-    },
-    {
-      id: 'contract-verification',
-      title: t('gateways.contract_verification'),
-      description: 'توثيق العقود وإدارة المستندات',
-      icon: FileText,
-      color: 'bg-indigo-500',
-      activeGroups: 4,
-      path: '/gateways/contract-verification'
-    },
-    {
-      id: 'commercial-arbitration',
-      title: t('gateways.commercial_arbitration'),
-      description: 'نظام التحكيم التجاري والوساطة - ORDA',
-      icon: Scale,
-      color: 'bg-red-500',
-      activeGroups: 2,
-      path: '/arbitration'
-    }
+  const recentActivity = [
+    { id: 1, type: 'group_created', title: 'مجموعة جديدة للشراء الجماعي', time: '2 ساعات', status: 'success' },
+    { id: 2, type: 'proposal_voted', title: 'تم التصويت على اقتراح الموردين', time: '4 ساعات', status: 'info' },
+    { id: 3, type: 'contract_signed', title: 'تم توقيع عقد مع مورد التكنولوجيا', time: '6 ساعات', status: 'success' },
+    { id: 4, type: 'arbitration_filed', title: 'تم رفع قضية تحكيم جديدة', time: '1 يوم', status: 'warning' },
+    { id: 5, type: 'member_joined', title: 'انضمام 3 أعضاء جدد', time: '2 أيام', status: 'info' }
   ];
 
-  const recentActivities = [
-    {
-      id: 1,
-      type: 'contract_signed',
-      title: 'تم توقيع عقد شراء معدات IT',
-      group: 'مجموعة الشركات التقنية',
-      amount: '$45,000',
-      time: '2 ساعات مضت'
-    },
-    {
-      id: 2,
-      type: 'arbitration_resolved',
-      title: 'تم حل نزاع تجاري',
-      group: 'شركة الطاقة المتجددة',
-      amount: '$12,000',
-      time: '4 ساعات مضت'
-    },
-    {
-      id: 3,
-      type: 'group_formed',
-      title: 'تم تكوين مجموعة جديدة',
-      group: 'مجموعة التسويق الرقمي',
-      members: '8 أعضاء',
-      time: '6 ساعات مضت'
-    }
+  const topGroups = [
+    { id: 1, name: 'مجموعة موردي التكنولوجيا', members: 15, savings: 45000, status: 'active' },
+    { id: 2, name: 'مجموعة التسويق التعاوني', members: 12, savings: 32000, status: 'active' },
+    { id: 3, name: 'شركة الطاقة المتجددة', members: 8, savings: 28000, status: 'pending' },
+    { id: 4, name: 'مجموعة المستقلين', members: 20, savings: 18000, status: 'active' }
   ];
+
+  const getStatusIcon = (status: string) => {
+    switch (status) {
+      case 'success': return <CheckCircle className="h-4 w-4 text-green-600" />;
+      case 'warning': return <AlertTriangle className="h-4 w-4 text-yellow-600" />;
+      case 'info': return <Clock className="h-4 w-4 text-blue-600" />;
+      default: return <Activity className="h-4 w-4 text-gray-600" />;
+    }
+  };
 
   return (
     <ModernMainLayout>
       <div className="container px-4 md:px-6 py-8">
         <div className="max-w-7xl mx-auto">
-          {/* Header Section */}
-          <div className="text-center mb-8">
-            <h1 className="text-4xl font-bold text-gray-900 mb-4">
-              منصة GPO للتفاوض التعاوني الذكي
-            </h1>
-            <p className="text-xl text-gray-600 mb-6">
-              نظام متكامل للعمل الجماعي بين مجموعات الأعمال، الموردين، والمستقلين
-            </p>
-            <div className="flex flex-wrap justify-center gap-2 mb-6">
-              <Badge variant="outline" className="bg-blue-50 text-blue-700">
-                <Award className="h-3 w-3 mr-1" />
-                معايير WTO
-              </Badge>
-              <Badge variant="outline" className="bg-green-50 text-green-700">
-                <Shield className="h-3 w-3 mr-1" />
-                مصدقة ISO
-              </Badge>
-              <Badge variant="outline" className="bg-purple-50 text-purple-700">
-                <Globe className="h-3 w-3 mr-1" />
-                التجارة الدولية
-              </Badge>
+          {/* Header */}
+          <div className="flex justify-between items-start mb-8">
+            <div>
+              <h1 className="text-3xl font-bold text-gray-900 mb-2">
+                لوحة تحكم منصة GPO
+              </h1>
+              <p className="text-lg text-gray-600">
+                إدارة شاملة للمجموعات التعاونية والتفاوض الذكي
+              </p>
+            </div>
+            <div className="flex gap-2">
+              <Button variant="outline" className="flex items-center gap-2">
+                <Bell className="h-4 w-4" />
+                الإشعارات
+                <Badge variant="destructive" className="ml-1">3</Badge>
+              </Button>
+              <Button variant="outline" className="flex items-center gap-2">
+                <Settings className="h-4 w-4" />
+                الإعدادات
+              </Button>
             </div>
           </div>
 
-          {/* Statistics Cards */}
+          {/* Stats Cards */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
             <Card>
               <CardContent className="p-6">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-sm text-gray-600">إجمالي المجموعات</p>
-                    <p className="text-3xl font-bold text-blue-600">{activeStats.totalGroups}</p>
+                    <p className="text-sm font-medium text-gray-600">إجمالي المجموعات</p>
+                    <p className="text-3xl font-bold text-gray-900">{stats.totalGroups}</p>
                   </div>
-                  <Users className="h-8 w-8 text-blue-500" />
+                  <div className="p-3 bg-blue-50 rounded-full">
+                    <Users className="h-6 w-6 text-blue-600" />
+                  </div>
+                </div>
+                <div className="mt-4 flex items-center text-sm">
+                  <TrendingUp className="h-4 w-4 text-green-600 mr-1" />
+                  <span className="text-green-600">+12%</span>
+                  <span className="text-gray-600 ml-1">من الشهر الماضي</span>
                 </div>
               </CardContent>
             </Card>
@@ -167,10 +113,17 @@ export default function GPODashboard() {
               <CardContent className="p-6">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-sm text-gray-600">التفاوضات النشطة</p>
-                    <p className="text-3xl font-bold text-green-600">{activeStats.activeNegotiations}</p>
+                    <p className="text-sm font-medium text-gray-600">الأعضاء النشطين</p>
+                    <p className="text-3xl font-bold text-gray-900">{stats.activeMembers}</p>
                   </div>
-                  <Vote className="h-8 w-8 text-green-500" />
+                  <div className="p-3 bg-green-50 rounded-full">
+                    <Activity className="h-6 w-6 text-green-600" />
+                  </div>
+                </div>
+                <div className="mt-4 flex items-center text-sm">
+                  <TrendingUp className="h-4 w-4 text-green-600 mr-1" />
+                  <span className="text-green-600">+8%</span>
+                  <span className="text-gray-600 ml-1">من الشهر الماضي</span>
                 </div>
               </CardContent>
             </Card>
@@ -179,10 +132,17 @@ export default function GPODashboard() {
               <CardContent className="p-6">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-sm text-gray-600">العقود المكتملة</p>
-                    <p className="text-3xl font-bold text-purple-600">{activeStats.completedContracts}</p>
+                    <p className="text-sm font-medium text-gray-600">إجمالي الوفورات</p>
+                    <p className="text-3xl font-bold text-gray-900">{stats.totalSavings.toLocaleString()} ريال</p>
                   </div>
-                  <FileText className="h-8 w-8 text-purple-500" />
+                  <div className="p-3 bg-purple-50 rounded-full">
+                    <DollarSign className="h-6 w-6 text-purple-600" />
+                  </div>
+                </div>
+                <div className="mt-4 flex items-center text-sm">
+                  <TrendingUp className="h-4 w-4 text-green-600 mr-1" />
+                  <span className="text-green-600">+25%</span>
+                  <span className="text-gray-600 ml-1">من الشهر الماضي</span>
                 </div>
               </CardContent>
             </Card>
@@ -191,84 +151,105 @@ export default function GPODashboard() {
               <CardContent className="p-6">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-sm text-gray-600">إجمالي الوفورات</p>
-                    <p className="text-3xl font-bold text-orange-600">
-                      ${activeStats.totalSavings.toLocaleString()}
-                    </p>
+                    <p className="text-sm font-medium text-gray-600">الصفقات المكتملة</p>
+                    <p className="text-3xl font-bold text-gray-900">{stats.completedDeals}</p>
                   </div>
-                  <DollarSign className="h-8 w-8 text-orange-500" />
+                  <div className="p-3 bg-orange-50 rounded-full">
+                    <CheckCircle className="h-6 w-6 text-orange-600" />
+                  </div>
+                </div>
+                <div className="mt-4 flex items-center text-sm">
+                  <TrendingUp className="h-4 w-4 text-green-600 mr-1" />
+                  <span className="text-green-600">+15%</span>
+                  <span className="text-gray-600 ml-1">من الشهر الماضي</span>
                 </div>
               </CardContent>
             </Card>
           </div>
 
           {/* Main Content Tabs */}
-          <Tabs defaultValue="gateways" className="w-full">
-            <TabsList className="grid w-full grid-cols-4">
-              <TabsTrigger value="gateways">البوابات الرئيسية</TabsTrigger>
-              <TabsTrigger value="activity">النشاط الحديث</TabsTrigger>
+          <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+            <TabsList className="grid w-full grid-cols-5">
+              <TabsTrigger value="overview">نظرة عامة</TabsTrigger>
+              <TabsTrigger value="groups">المجموعات</TabsTrigger>
               <TabsTrigger value="analytics">التحليلات</TabsTrigger>
-              <TabsTrigger value="settings">الإعدادات</TabsTrigger>
+              <TabsTrigger value="compliance">الامتثال</TabsTrigger>
+              <TabsTrigger value="reports">التقارير</TabsTrigger>
             </TabsList>
 
-            <TabsContent value="gateways" className="mt-6">
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {gateways.map((gateway) => {
-                  const IconComponent = gateway.icon;
-                  return (
-                    <Card key={gateway.id} className="hover:shadow-lg transition-shadow cursor-pointer">
-                      <CardHeader>
-                        <div className="flex items-center justify-between">
-                          <div className={`p-3 rounded-lg ${gateway.color} text-white`}>
-                            <IconComponent className="h-6 w-6" />
+            <TabsContent value="overview" className="mt-6">
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                {/* Recent Activity */}
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
+                      <Activity className="h-5 w-5" />
+                      النشاط الأخير
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="space-y-4">
+                      {recentActivity.map((activity) => (
+                        <div key={activity.id} className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
+                          {getStatusIcon(activity.status)}
+                          <div className="flex-1">
+                            <p className="font-medium text-gray-900">{activity.title}</p>
+                            <p className="text-sm text-gray-600">منذ {activity.time}</p>
                           </div>
-                          <Badge variant="outline">
-                            {gateway.activeGroups} مجموعة نشطة
-                          </Badge>
                         </div>
-                        <CardTitle className="text-lg">{gateway.title}</CardTitle>
-                        <CardDescription>{gateway.description}</CardDescription>
-                      </CardHeader>
-                      <CardContent>
-                        <Button 
-                          className="w-full" 
-                          onClick={() => navigate(gateway.path)}
-                        >
-                          دخول البوابة
-                        </Button>
-                      </CardContent>
-                    </Card>
-                  );
-                })}
+                      ))}
+                    </div>
+                  </CardContent>
+                </Card>
+
+                {/* Top Performing Groups */}
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
+                      <BarChart3 className="h-5 w-5" />
+                      أفضل المجموعات أداءً
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="space-y-4">
+                      {topGroups.map((group, index) => (
+                        <div key={group.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                          <div className="flex items-center gap-3">
+                            <div className="flex items-center justify-center w-8 h-8 bg-blue-100 text-blue-600 rounded-full font-bold">
+                              {index + 1}
+                            </div>
+                            <div>
+                              <p className="font-medium text-gray-900">{group.name}</p>
+                              <p className="text-sm text-gray-600">{group.members} عضو</p>
+                            </div>
+                          </div>
+                          <div className="text-right">
+                            <p className="font-bold text-green-600">{group.savings.toLocaleString()} ريال</p>
+                            <Badge variant={group.status === 'active' ? 'default' : 'secondary'}>
+                              {group.status === 'active' ? 'نشط' : 'معلق'}
+                            </Badge>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </CardContent>
+                </Card>
               </div>
             </TabsContent>
 
-            <TabsContent value="activity" className="mt-6">
+            <TabsContent value="groups" className="mt-6">
               <Card>
                 <CardHeader>
-                  <CardTitle>النشاط الحديث</CardTitle>
-                  <CardDescription>آخر الأنشطة في النظام</CardDescription>
+                  <CardTitle>إدارة المجموعات</CardTitle>
+                  <CardDescription>
+                    جميع المجموعات النشطة في المنصة
+                  </CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <div className="space-y-4">
-                    {recentActivities.map((activity) => (
-                      <div key={activity.id} className="flex items-start gap-4 p-4 border rounded-lg">
-                        <div className="w-2 h-2 bg-green-500 rounded-full mt-2"></div>
-                        <div className="flex-1">
-                          <h4 className="font-medium">{activity.title}</h4>
-                          <p className="text-sm text-gray-600">{activity.group}</p>
-                          <div className="flex items-center gap-4 mt-2">
-                            {activity.amount && (
-                              <span className="text-sm font-medium text-green-600">{activity.amount}</span>
-                            )}
-                            {activity.members && (
-                              <span className="text-sm font-medium text-blue-600">{activity.members}</span>
-                            )}
-                            <span className="text-xs text-gray-500">{activity.time}</span>
-                          </div>
-                        </div>
-                      </div>
-                    ))}
+                  <div className="text-center py-12">
+                    <Building className="mx-auto h-12 w-12 text-gray-400 mb-4" />
+                    <p className="text-gray-600 mb-4">سيتم عرض قائمة مفصلة بجميع المجموعات هنا</p>
+                    <Button>عرض جميع المجموعات</Button>
                   </div>
                 </CardContent>
               </Card>
@@ -278,21 +259,30 @@ export default function GPODashboard() {
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 <Card>
                   <CardHeader>
-                    <CardTitle>إحصائيات الموردين</CardTitle>
+                    <CardTitle>أداء المنصة</CardTitle>
                   </CardHeader>
                   <CardContent>
                     <div className="space-y-4">
-                      <div className="flex justify-between items-center">
-                        <span>الموردين النشطين</span>
-                        <span className="font-bold text-blue-600">{activeStats.activeSuppliers}</span>
+                      <div>
+                        <div className="flex justify-between mb-2">
+                          <span className="text-sm font-medium">معدل نجاح الصفقات</span>
+                          <span className="text-sm text-gray-600">87%</span>
+                        </div>
+                        <Progress value={87} className="h-2" />
                       </div>
-                      <div className="flex justify-between items-center">
-                        <span>المستقلين المعتمدين</span>
-                        <span className="font-bold text-green-600">{activeStats.verifiedFreelancers}</span>
+                      <div>
+                        <div className="flex justify-between mb-2">
+                          <span className="text-sm font-medium">رضا الأعضاء</span>
+                          <span className="text-sm text-gray-600">94%</span>
+                        </div>
+                        <Progress value={94} className="h-2" />
                       </div>
-                      <div className="flex justify-between items-center">
-                        <span>قضايا التحكيم المعلقة</span>
-                        <span className="font-bold text-red-600">{activeStats.pendingArbitrations}</span>
+                      <div>
+                        <div className="flex justify-between mb-2">
+                          <span className="text-sm font-medium">نمو الأعضاء الشهري</span>
+                          <span className="text-sm text-gray-600">12%</span>
+                        </div>
+                        <Progress value={12} className="h-2" />
                       </div>
                     </div>
                   </CardContent>
@@ -300,42 +290,77 @@ export default function GPODashboard() {
 
                 <Card>
                   <CardHeader>
-                    <CardTitle>الأداء الشهري</CardTitle>
+                    <CardTitle>التوزيع الجغرافي</CardTitle>
                   </CardHeader>
                   <CardContent>
-                    <div className="text-center py-8">
-                      <TrendingUp className="h-16 w-16 text-green-500 mx-auto mb-4" />
-                      <p className="text-lg font-medium">نمو بنسبة 23%</p>
-                      <p className="text-sm text-gray-600">مقارنة بالشهر الماضي</p>
+                    <div className="text-center py-12">
+                      <Globe className="mx-auto h-12 w-12 text-gray-400 mb-4" />
+                      <p className="text-gray-600">خريطة التوزيع الجغرافي للأعضاء</p>
                     </div>
                   </CardContent>
                 </Card>
               </div>
             </TabsContent>
 
-            <TabsContent value="settings" className="mt-6">
+            <TabsContent value="compliance" className="mt-6">
               <Card>
                 <CardHeader>
-                  <CardTitle>إعدادات النظام</CardTitle>
-                  <CardDescription>إدارة إعدادات منصة GPO</CardDescription>
+                  <CardTitle className="flex items-center gap-2">
+                    <Shield className="h-5 w-5" />
+                    معايير الامتثال الدولية
+                  </CardTitle>
+                  <CardDescription>
+                    التوافق مع معايير WTO, ISO, وأفضل الممارسات الدولية
+                  </CardDescription>
                 </CardHeader>
-                <CardContent className="space-y-4">
-                  <Button variant="outline" className="w-full justify-start">
-                    <Users className="h-4 w-4 mr-2" />
-                    إدارة الأدوار والصلاحيات
-                  </Button>
-                  <Button variant="outline" className="w-full justify-start">
-                    <Shield className="h-4 w-4 mr-2" />
-                    إعدادات الأمان والخصوصية
-                  </Button>
-                  <Button variant="outline" className="w-full justify-start">
-                    <Globe className="h-4 w-4 mr-2" />
-                    معايير التجارة الدولية
-                  </Button>
-                  <Button variant="outline" className="w-full justify-start">
-                    <FileText className="h-4 w-4 mr-2" />
-                    إدارة القوالب والعقود
-                  </Button>
+                <CardContent>
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div className="p-4 border rounded-lg">
+                      <div className="flex items-center gap-2 mb-3">
+                        <CheckCircle className="h-5 w-5 text-green-600" />
+                        <h3 className="font-semibold">WTO Compliance</h3>
+                      </div>
+                      <p className="text-sm text-gray-600">
+                        متوافق مع قواعد منظمة التجارة العالمية
+                      </p>
+                    </div>
+                    <div className="p-4 border rounded-lg">
+                      <div className="flex items-center gap-2 mb-3">
+                        <CheckCircle className="h-5 w-5 text-green-600" />
+                        <h3 className="font-semibold">ISO Standards</h3>
+                      </div>
+                      <p className="text-sm text-gray-600">
+                        يتبع معايير الأيزو الدولية
+                      </p>
+                    </div>
+                    <div className="p-4 border rounded-lg">
+                      <div className="flex items-center gap-2 mb-3">
+                        <CheckCircle className="h-5 w-5 text-green-600" />
+                        <h3 className="font-semibold">GPO Best Practices</h3>
+                      </div>
+                      <p className="text-sm text-gray-600">
+                        أفضل ممارسات منظمات الشراء الجماعي
+                      </p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </TabsContent>
+
+            <TabsContent value="reports" className="mt-6">
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <FileText className="h-5 w-5" />
+                    التقارير والإحصائيات
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="text-center py-12">
+                    <BarChart3 className="mx-auto h-12 w-12 text-gray-400 mb-4" />
+                    <p className="text-gray-600 mb-4">تقارير مفصلة عن أداء المنصة</p>
+                    <Button>إنشاء تقرير جديد</Button>
+                  </div>
                 </CardContent>
               </Card>
             </TabsContent>
