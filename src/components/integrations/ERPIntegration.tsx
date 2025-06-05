@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -14,7 +13,7 @@ import {
   BarChart3,
   Download,
   Upload,
-  Sync
+  RefreshCw
 } from 'lucide-react';
 
 interface ERPIntegrationProps {
@@ -70,7 +69,7 @@ export function ERPIntegration({ groupId }: ERPIntegrationProps) {
             variant="outline"
             size="sm"
           >
-            <Sync className={`h-4 w-4 mr-2 ${syncStatus === 'syncing' ? 'animate-spin' : ''}`} />
+            <RefreshCw className={`h-4 w-4 mr-2 ${syncStatus === 'syncing' ? 'animate-spin' : ''}`} />
             مزامنة البيانات
           </Button>
         </div>
