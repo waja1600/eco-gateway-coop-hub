@@ -29,7 +29,8 @@ import {
   CheckCircle,
   ArrowRight,
   Play,
-  Star
+  Star,
+  Plus
 } from 'lucide-react';
 
 export default function ModernIndex() {
