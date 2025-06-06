@@ -7,7 +7,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { 
   LayoutDashboard, 
-  FileContract, 
+  FileText, 
   Users, 
   Vote, 
   Shield, 
@@ -49,7 +49,7 @@ const navigationItems: NavigationItem[] = [
     title: 'Smart Contracts',
     titleAr: 'العقود الذكية',
     description: 'إدارة العقود الذكية والبلوك تشين',
-    icon: <FileContract className="h-5 w-5" />,
+    icon: <FileText className="h-5 w-5" />,
     path: '/contracts/smart',
     badge: '3',
     category: 'main',

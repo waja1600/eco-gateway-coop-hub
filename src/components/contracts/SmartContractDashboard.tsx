@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -6,7 +5,7 @@ import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { 
-  FileContract, 
+  FileText, 
   Zap, 
   Shield, 
   TrendingUp, 
@@ -92,7 +91,7 @@ export function SmartContractDashboard() {
       case 'marketing': return <TrendingUp className="h-5 w-5" />;
       case 'incorporation': return <Building className="h-5 w-5" />;
       case 'arbitration': return <Scale className="h-5 w-5" />;
-      default: return <FileContract className="h-5 w-5" />;
+      default: return <FileText className="h-5 w-5" />;
     }
   };
 

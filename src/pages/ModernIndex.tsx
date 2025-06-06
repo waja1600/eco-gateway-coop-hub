@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { ModernMainLayout } from '@/layouts/ModernMainLayout';
 import { EnhancedNavigation } from '@/components/layout/EnhancedNavigation';
@@ -11,7 +10,7 @@ import {
   Building, 
   Briefcase, 
   Scale, 
-  FileContract, 
+  FileText, 
   Vote,
   Shield,
   TrendingUp,
@@ -50,7 +49,7 @@ export default function ModernIndex() {
       id: 'smart-contracts',
       title: 'العقود الذكية',
       description: 'نظام العقود المدعوم بالبلوك تشين',
-      icon: <FileContract className="h-8 w-8" />,
+      icon: <FileText className="h-8 w-8" />,
       variant: 'glass' as const,
       content: (
         <div className="space-y-4">
