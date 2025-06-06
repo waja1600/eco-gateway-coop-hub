@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
-import { Upload, FileText, DollarSign, Clock, Building } from 'lucide-react';
+import { Upload, FileText, DollarSign, Clock, Building, ArrowLeft } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
 export default function SubmitOffer() {
@@ -37,6 +37,7 @@ export default function SubmitOffer() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    console.log('Submitting offer for group:', groupId);
     setIsSubmitting(true);
 
     // Simulate API call
@@ -51,18 +52,47 @@ export default function SubmitOffer() {
     navigate(`/groups/${groupId}`);
   };
 
+  const handleBackToGroup = () => {
+    console.log('Navigating back to group:', groupId);
+    navigate(`/groups/${groupId}`);
+  };
+
+  const handleGoHome = () => {
+    console.log('Navigating to home');
+    navigate('/');
+  };
+
   return (
     <ModernMainLayout>
       <div className="container px-4 md:px-6 py-8">
         <div className="max-w-4xl mx-auto">
-          {/* Header */}
-          <div className="text-center mb-8">
-            <h1 className="text-3xl font-bold text-gray-900 mb-2">
-              تقديم عرض
-            </h1>
-            <p className="text-lg text-gray-600">
-              قدم عرضك المهني للمشروع المطلوب
-            </p>
+          {/* Header with Navigation */}
+          <div className="mb-8">
+            <div className="flex items-center gap-4 mb-4">
+              <Button
+                variant="outline"
+                onClick={handleBackToGroup}
+                className="flex items-center gap-2"
+              >
+                <ArrowLeft className="h-4 w-4" />
+                العودة للمجموعة
+              </Button>
+              <Button
+                variant="ghost"
+                onClick={handleGoHome}
+                className="flex items-center gap-2"
+              >
+                الرئيسية
+              </Button>
+            </div>
+            <div className="text-center">
+              <h1 className="text-3xl font-bold text-gray-900 mb-2">
+                تقديم عرض
+              </h1>
+              <p className="text-lg text-gray-600">
+                قدم عرضك المهني للمشروع المطلوب
+              </p>
+            </div>
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -237,7 +267,7 @@ export default function SubmitOffer() {
                       <Button
                         type="button"
                         variant="outline"
-                        onClick={() => navigate(`/groups/${groupId}`)}
+                        onClick={handleBackToGroup}
                       >
                         إلغاء
                       </Button>

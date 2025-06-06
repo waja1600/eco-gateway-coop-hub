@@ -6,6 +6,7 @@ import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Building, Package, DollarSign, Truck, Star, FileText } from 'lucide-react';
+import { useToast } from '@/hooks/use-toast';
 
 interface SupplierOffer {
   id: string;
@@ -64,6 +65,7 @@ const mockOffers: SupplierOffer[] = [
 export function SupplierOffers({ groupId, canManage }: SupplierOffersProps) {
   const [offers, setOffers] = useState<SupplierOffer[]>(mockOffers);
   const [showRequestForm, setShowRequestForm] = useState(false);
+  const { toast } = useToast();
   const [newRequest, setNewRequest] = useState({
     title: '',
     description: '',
@@ -83,38 +85,72 @@ export function SupplierOffers({ groupId, canManage }: SupplierOffersProps) {
   };
 
   const handleAcceptOffer = (offerId: string) => {
+    console.log('Accepting offer:', offerId);
     setOffers(offers.map(offer => 
-      offer.id === offerId ? { ...offer, status: 'accepted' } : offer
+      offer.id === offerId ? { ...offer, status: 'accepted' as const } : offer
     ));
+    toast({
+      title: "تم قبول العرض",
+      description: "تم قبول عرض المورد بنجاح",
+    });
   };
 
   const handleRejectOffer = (offerId: string) => {
+    console.log('Rejecting offer:', offerId);
     setOffers(offers.map(offer => 
-      offer.id === offerId ? { ...offer, status: 'rejected' } : offer
+      offer.id === offerId ? { ...offer, status: 'rejected' as const } : offer
     ));
+    toast({
+      title: "تم رفض العرض",
+      description: "تم رفض عرض المورد",
+    });
   };
 
   const handleNegotiate = (offerId: string) => {
+    console.log('Starting negotiation for offer:', offerId);
     setOffers(offers.map(offer => 
-      offer.id === offerId ? { ...offer, status: 'negotiating' } : offer
+      offer.id === offerId ? { ...offer, status: 'negotiating' as const } : offer
     ));
+    toast({
+      title: "بدء التفاوض",
+      description: "تم بدء التفاوض مع المورد",
+    });
   };
 
   const handleRequestProposal = () => {
-    if (!newRequest.title || !newRequest.description) return;
+    console.log('Creating new RFP:', newRequest);
+    if (!newRequest.title || !newRequest.description) {
+      toast({
+        title: "خطأ",
+        description: "يرجى ملء جميع الحقول المطلوبة",
+        variant: "destructive"
+      });
+      return;
+    }
     
-    // In real app, this would create a new RFP
-    console.log('New RFP posted:', newRequest);
+    toast({
+      title: "تم إرسال طلب العروض",
+      description: "تم إرسال طلب العروض للموردين المؤهلين",
+    });
+    
     setNewRequest({ title: '', description: '', budget: 0, quantity: 0, deadline: '' });
     setShowRequestForm(false);
+  };
+
+  const handleDownloadDocument = (docName: string) => {
+    console.log('Downloading document:', docName);
+    toast({
+      title: "تحميل المستند",
+      description: `جاري تحميل ${docName}`,
+    });
   };
 
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
         <div>
-          <h2 className="text-2xl font-bold text-gray-900">Supplier Proposals</h2>
-          <p className="text-gray-600">Review and manage supplier offers for your group purchasing needs</p>
+          <h2 className="text-2xl font-bold text-gray-900">عروض الموردين</h2>
+          <p className="text-gray-600">مراجعة وإدارة عروض الموردين لاحتياجات الشراء الجماعي</p>
         </div>
         {canManage && (
           <Button 
@@ -122,7 +158,7 @@ export function SupplierOffers({ groupId, canManage }: SupplierOffersProps) {
             className="bg-blue-600 hover:bg-blue-700"
           >
             <Package className="h-4 w-4 mr-2" />
-            Request Proposals
+            طلب عروض
           </Button>
         )}
       </div>
@@ -131,18 +167,18 @@ export function SupplierOffers({ groupId, canManage }: SupplierOffersProps) {
       {showRequestForm && (
         <Card className="border-blue-200">
           <CardHeader>
-            <CardTitle className="text-blue-700">Request for Proposal (RFP)</CardTitle>
+            <CardTitle className="text-blue-700">طلب عروض أسعار (RFP)</CardTitle>
             <CardDescription>
-              Create a detailed request to get proposals from qualified suppliers
+              إنشاء طلب مفصل للحصول على عروض من موردين مؤهلين
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                Product/Service Title
+                عنوان المنتج/الخدمة
               </label>
               <Input
-                placeholder="e.g., Office Furniture, Software Licenses"
+                placeholder="مثل: أثاث مكتبي، تراخيص برمجيات"
                 value={newRequest.title}
                 onChange={(e) => setNewRequest({ ...newRequest, title: e.target.value })}
               />
@@ -150,10 +186,10 @@ export function SupplierOffers({ groupId, canManage }: SupplierOffersProps) {
             
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                Detailed Requirements
+                المتطلبات التفصيلية
               </label>
               <Textarea
-                placeholder="Describe specifications, quality requirements, delivery expectations"
+                placeholder="اوصف المواصفات، متطلبات الجودة، توقعات التسليم"
                 value={newRequest.description}
                 onChange={(e) => setNewRequest({ ...newRequest, description: e.target.value })}
                 rows={4}
@@ -163,7 +199,7 @@ export function SupplierOffers({ groupId, canManage }: SupplierOffersProps) {
             <div className="grid grid-cols-3 gap-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Budget ($)
+                  الميزانية (ريال)
                 </label>
                 <Input
                   type="number"
@@ -174,7 +210,7 @@ export function SupplierOffers({ groupId, canManage }: SupplierOffersProps) {
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Quantity
+                  الكمية
                 </label>
                 <Input
                   type="number"
@@ -185,7 +221,7 @@ export function SupplierOffers({ groupId, canManage }: SupplierOffersProps) {
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Deadline
+                  الموعد النهائي
                 </label>
                 <Input
                   type="date"
@@ -197,10 +233,10 @@ export function SupplierOffers({ groupId, canManage }: SupplierOffersProps) {
             
             <div className="flex gap-2">
               <Button onClick={handleRequestProposal}>
-                Send RFP
+                إرسال طلب العروض
               </Button>
               <Button variant="outline" onClick={() => setShowRequestForm(false)}>
-                Cancel
+                إلغاء
               </Button>
             </div>
           </CardContent>
@@ -213,9 +249,9 @@ export function SupplierOffers({ groupId, canManage }: SupplierOffersProps) {
           <Card>
             <CardContent className="text-center py-12">
               <Building className="mx-auto h-12 w-12 text-gray-400 mb-4" />
-              <p className="text-gray-600">No supplier proposals received yet.</p>
+              <p className="text-gray-600">لم يتم استلام عروض من الموردين بعد.</p>
               <p className="text-sm text-gray-500 mb-4">
-                Request proposals to get competitive offers from suppliers
+                اطلب عروض أسعار للحصول على عروض تنافسية من الموردين
               </p>
             </CardContent>
           </Card>
@@ -234,7 +270,9 @@ export function SupplierOffers({ groupId, canManage }: SupplierOffersProps) {
                     </div>
                   </div>
                   <Badge variant="outline" className={getStatusColor(offer.status)}>
-                    {offer.status.charAt(0).toUpperCase() + offer.status.slice(1)}
+                    {offer.status === 'pending' ? 'معلق' : 
+                     offer.status === 'accepted' ? 'مقبول' :
+                     offer.status === 'rejected' ? 'مرفوض' : 'قيد التفاوض'}
                   </Badge>
                 </div>
               </CardHeader>
@@ -247,15 +285,15 @@ export function SupplierOffers({ groupId, canManage }: SupplierOffersProps) {
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                   <div className="text-center p-3 bg-gray-50 rounded-lg">
                     <div className="text-lg font-bold text-blue-600">
-                      ${offer.unitPrice}
+                      {offer.unitPrice} ريال
                     </div>
-                    <div className="text-sm text-gray-600">Unit Price</div>
+                    <div className="text-sm text-gray-600">سعر الوحدة</div>
                   </div>
                   <div className="text-center p-3 bg-gray-50 rounded-lg">
                     <div className="text-lg font-bold text-blue-600">
                       {offer.minOrder}
                     </div>
-                    <div className="text-sm text-gray-600">Min Order</div>
+                    <div className="text-sm text-gray-600">الحد الأدنى</div>
                   </div>
                   <div className="text-center p-3 bg-gray-50 rounded-lg">
                     <Truck className="mx-auto h-5 w-5 text-gray-600 mb-1" />
@@ -268,12 +306,12 @@ export function SupplierOffers({ groupId, canManage }: SupplierOffersProps) {
                         {offer.rating}
                       </span>
                     </div>
-                    <div className="text-sm text-gray-600">Rating</div>
+                    <div className="text-sm text-gray-600">التقييم</div>
                   </div>
                 </div>
 
                 <div>
-                  <h4 className="font-medium text-gray-900 mb-2">Certifications</h4>
+                  <h4 className="font-medium text-gray-900 mb-2">الشهادات</h4>
                   <div className="flex flex-wrap gap-2">
                     {offer.certifications.map(cert => (
                       <Badge key={cert} variant="outline" className="bg-blue-50 text-blue-700">
@@ -284,10 +322,16 @@ export function SupplierOffers({ groupId, canManage }: SupplierOffersProps) {
                 </div>
 
                 <div>
-                  <h4 className="font-medium text-gray-900 mb-2">Documents</h4>
+                  <h4 className="font-medium text-gray-900 mb-2">المستندات</h4>
                   <div className="flex flex-wrap gap-2">
                     {offer.documents.map(doc => (
-                      <Button key={doc} variant="outline" size="sm" className="gap-1">
+                      <Button 
+                        key={doc} 
+                        variant="outline" 
+                        size="sm" 
+                        className="gap-1"
+                        onClick={() => handleDownloadDocument(doc)}
+                      >
                         <FileText className="h-3 w-3" />
                         {doc}
                       </Button>
@@ -296,7 +340,7 @@ export function SupplierOffers({ groupId, canManage }: SupplierOffersProps) {
                 </div>
 
                 <div className="text-sm text-gray-500">
-                  Submitted on {offer.submittedAt}
+                  تم التقديم في {offer.submittedAt}
                 </div>
 
                 {canManage && (
@@ -308,31 +352,39 @@ export function SupplierOffers({ groupId, canManage }: SupplierOffersProps) {
                           onClick={() => handleAcceptOffer(offer.id)}
                           className="bg-green-600 hover:bg-green-700"
                         >
-                          Accept
+                          قبول
                         </Button>
                         <Button 
                           size="sm" 
                           variant="outline"
                           onClick={() => handleNegotiate(offer.id)}
                         >
-                          Negotiate
+                          تفاوض
                         </Button>
                         <Button 
                           size="sm" 
                           variant="outline"
                           onClick={() => handleRejectOffer(offer.id)}
                         >
-                          Reject
+                          رفض
                         </Button>
                       </>
                     )}
                     {offer.status === 'negotiating' && (
-                      <Button size="sm" variant="outline">
-                        Continue Negotiation
+                      <Button 
+                        size="sm" 
+                        variant="outline"
+                        onClick={() => console.log('Continue negotiation for:', offer.id)}
+                      >
+                        متابعة التفاوض
                       </Button>
                     )}
-                    <Button size="sm" variant="outline">
-                      Message
+                    <Button 
+                      size="sm" 
+                      variant="outline"
+                      onClick={() => console.log('Message supplier:', offer.id)}
+                    >
+                      مراسلة
                     </Button>
                   </div>
                 )}
