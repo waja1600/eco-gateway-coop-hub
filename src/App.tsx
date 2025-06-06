@@ -39,6 +39,9 @@ import GPODashboard from "./pages/GPODashboard";
 import RoleSelection from "./pages/RoleSelection";
 import ArbitrationPortal from "./pages/ArbitrationPortal";
 import IPFSDocumentManager from "./pages/IPFSDocumentManager";
+import SmartContractsHub from "./pages/SmartContractsHub";
+import AdvancedGovernance from "./pages/AdvancedGovernance";
+import AdvancedArbitration from "./pages/AdvancedArbitration";
 
 // Import dashboard components
 import { DashboardLayout } from "./components/dashboard/DashboardLayout";
@@ -84,15 +87,18 @@ const App = () => (
               
               {/* Governance & Voting routes */}
               <Route path="/governance" element={<GovernancePortal />} />
+              <Route path="/governance/advanced" element={<AdvancedGovernance />} />
               <Route path="/governance/proposals/:id" element={<ProposalView />} />
               <Route path="/voting" element={<VotingPortal />} />
               
               {/* Contract & Document Management */}
               <Route path="/contracts" element={<ContractsPortal />} />
+              <Route path="/contracts/smart" element={<SmartContractsHub />} />
               <Route path="/documents" element={<IPFSDocumentManager />} />
               
               {/* Arbitration Portal - ORDA */}
               <Route path="/arbitration" element={<ArbitrationPortal />} />
+              <Route path="/arbitration/advanced" element={<AdvancedArbitration />} />
               
               {/* Notifications */}
               <Route path="/notifications" element={<NotificationsPortal />} />

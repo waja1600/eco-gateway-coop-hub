@@ -15,7 +15,9 @@ import {
   CheckCircle,
   AlertTriangle,
   DollarSign,
-  Globe
+  Globe,
+  Building,
+  Scale
 } from 'lucide-react';
 
 interface SmartContract {
@@ -86,8 +88,8 @@ export function SmartContractDashboard() {
 
   const getTypeIcon = (type: string) => {
     switch (type) {
-      case 'purchase': return <ShoppingCart className="h-5 w-5" />;
-      case 'marketing': return <Megaphone className="h-5 w-5" />;
+      case 'purchase': return <DollarSign className="h-5 w-5" />;
+      case 'marketing': return <TrendingUp className="h-5 w-5" />;
       case 'incorporation': return <Building className="h-5 w-5" />;
       case 'arbitration': return <Scale className="h-5 w-5" />;
       default: return <FileContract className="h-5 w-5" />;
@@ -338,11 +340,11 @@ export function SmartContractDashboard() {
             <CardContent>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                 <Button className="h-24 flex-col gap-2">
-                  <ShoppingCart className="h-6 w-6" />
+                  <DollarSign className="h-6 w-6" />
                   <span>Purchase Contract</span>
                 </Button>
                 <Button className="h-24 flex-col gap-2" variant="outline">
-                  <Megaphone className="h-6 w-6" />
+                  <TrendingUp className="h-6 w-6" />
                   <span>Marketing Contract</span>
                 </Button>
                 <Button className="h-24 flex-col gap-2" variant="outline">

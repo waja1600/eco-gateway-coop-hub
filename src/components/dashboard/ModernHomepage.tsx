@@ -1,14 +1,14 @@
-
 import React, { useState } from 'react';
 import { WorkspaceLayout } from '@/components/layout/WorkspaceLayout';
 import { GridBoxLayout } from '@/components/layout/GridBoxLayout';
 import { ServiceCard } from '@/components/layout/ServiceCard';
+import { AIPromptBox } from '@/components/ai/AIPromptBox';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { GroupCard } from './GroupCard';
 import { CreateGroupModal } from './CreateGroupModal';
-import { Plus, Search, Filter, Users, Briefcase, DollarSign, TrendingUp, Globe } from 'lucide-react';
+import { Plus, Search, Filter, Users, Briefcase, DollarSign, TrendingUp, Globe, Brain } from 'lucide-react';
 
 const mockGroups = [
   {
@@ -59,6 +59,7 @@ export function ModernHomepage() {
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [groups, setGroups] = useState(mockGroups);
+  const [showAIPrompt, setShowAIPrompt] = useState(false);
 
   const handleCreateGroup = (groupData: any) => {
     const newGroup = {
@@ -146,6 +147,24 @@ export function ModernHomepage() {
           gap={6}
         />
       </div>
+
+      {/* AI Assistant Toggle */}
+      <div className="mb-6">
+        <Button
+          onClick={() => setShowAIPrompt(!showAIPrompt)}
+          className="bg-purple-600 hover:bg-purple-700"
+        >
+          <Brain className="h-4 w-4 mr-2" />
+          {showAIPrompt ? 'إخفاء مساعد الذكاء الاصطناعي' : 'إظهار مساعد الذكاء الاصطناعي'}
+        </Button>
+      </div>
+
+      {/* AI Prompt Box */}
+      {showAIPrompt && (
+        <div className="mb-8">
+          <AIPromptBox />
+        </div>
+      )}
 
       {/* Hero Section */}
       <div className="text-center mb-8">
