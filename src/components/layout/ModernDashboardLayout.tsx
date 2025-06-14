@@ -19,7 +19,12 @@ import {
   Vote,
   Shield,
   Activity,
-  TrendingUp
+  TrendingUp,
+  Brain,
+  DollarSign,
+  Scale,
+  Package,
+  MessageSquare
 } from 'lucide-react';
 
 interface SidebarItem {
@@ -49,12 +54,16 @@ export function ModernDashboardLayout({
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   const defaultSidebarItems: SidebarItem[] = [
-    { id: 'dashboard', label: 'لوحة التحكم', icon: <LayoutDashboard className="h-5 w-5" />, href: '/dashboard', isActive: currentPath === '/dashboard' },
+    { id: 'dashboard', label: 'لوحة التحكم', icon: <LayoutDashboard className="h-5 w-5" />, href: '/gpo-dashboard', isActive: currentPath === '/gpo-dashboard' },
+    { id: 'groups', label: 'المجموعات', icon: <Users className="h-5 w-5" />, badge: '12', href: '/workspace' },
     { id: 'contracts', label: 'العقود', icon: <FileText className="h-5 w-5" />, badge: '5', href: '/contracts' },
-    { id: 'groups', label: 'المجموعات', icon: <Users className="h-5 w-5" />, href: '/groups' },
+    { id: 'proposals', label: 'العروض', icon: <Package className="h-5 w-5" />, badge: '8', href: '/gpo-platform' },
     { id: 'voting', label: 'التصويت', icon: <Vote className="h-5 w-5" />, badge: '2', href: '/voting' },
-    { id: 'governance', label: 'الحوكمة', icon: <Shield className="h-5 w-5" />, href: '/governance' },
-    { id: 'workspace', label: 'المساحة الذكية', icon: <Briefcase className="h-5 w-5" />, href: '/workspace' },
+    { id: 'discussions', label: 'المناقشات', icon: <MessageSquare className="h-5 w-5" />, href: '/workspace' },
+    { id: 'arbitration', label: 'التحكيم', icon: <Scale className="h-5 w-5" />, href: '/arbitration' },
+    { id: 'investment', label: 'الاستثمار', icon: <TrendingUp className="h-5 w-5" />, href: '/gpo-platform' },
+    { id: 'marketplace', label: 'السوق', icon: <Briefcase className="h-5 w-5" />, href: '/gpo-platform' },
+    { id: 'mcp', label: 'MCP Analytics', icon: <Brain className="h-5 w-5" />, href: '/workspace' },
     { id: 'settings', label: 'الإعدادات', icon: <Settings className="h-5 w-5" />, href: '/settings' }
   ];
 
@@ -76,7 +85,7 @@ export function ModernDashboardLayout({
                 <div className="p-2 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-lg">
                   <Home className="h-5 w-5 text-white" />
                 </div>
-                <span className="font-bold text-gray-800">المنصة الذكية</span>
+                <span className="font-bold text-gray-800">منصة GPO</span>
               </div>
               <Button
                 variant="ghost"
@@ -151,7 +160,7 @@ export function ModernDashboardLayout({
                 >
                   <Menu className="h-5 w-5" />
                 </Button>
-                <h1 className="font-bold text-gray-800">{title || 'المنصة الذكية'}</h1>
+                <h1 className="font-bold text-gray-800">{title || 'منصة GPO'}</h1>
                 <Button variant="ghost" size="icon">
                   <Bell className="h-5 w-5" />
                 </Button>

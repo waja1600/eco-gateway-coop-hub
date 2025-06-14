@@ -1,373 +1,270 @@
-
 import React, { useState } from 'react';
-import { useTranslation } from 'react-i18next';
-import { WorkspaceLayout } from '@/components/layout/WorkspaceLayout';
-import { RoleSelector } from '@/components/gpo/RoleSelector';
+import { ModernDashboardLayout } from '@/components/layout/ModernDashboardLayout';
 import { MCPIntegration } from '@/components/services/MCPIntegration';
-import { GroupCard } from '@/components/dashboard/GroupCard';
+import { ComprehensiveGPOSystem } from '@/components/gpo/ComprehensiveGPOSystem';
+import { ContractWorkflow } from '@/components/contracts/ContractWorkflow';
+import { EnhancedVotingSystem } from '@/components/voting/EnhancedVotingSystem';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from "@/components/ui/button";
+import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Users, Package, User, Brain, TrendingUp, Target, Zap } from 'lucide-react';
+import { 
+  Briefcase, Users, FileText, Brain, Vote, MessageSquare, 
+  TrendingUp, Activity, Bell, Settings, Plus, Search,
+  Package, Scale, DollarSign, Shield
+} from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
-const Workspace = () => {
-  const { t } = useTranslation();
-  const [currentRole, setCurrentRole] = useState<'member' | 'supplier' | 'freelancer'>('member');
-  const [selectedRoles, setSelectedRoles] = useState<string[]>([]);
+export default function Workspace() {
+  const navigate = useNavigate();
+  const [activeTab, setActiveTab] = useState('overview');
 
-  // Mock data for groups
-  const mockGroups = [
-    {
-      id: 1,
-      name: 'مجموعة الشراء التعاوني للتكنولوجيا',
-      description: 'شراء جماعي لمعدات التكنولوجيا والبرمجيات للشركات الصغيرة',
-      type: 'group' as const,
-      memberCount: 12,
-      category: 'التكنولوجيا',
-      location: 'الرياض، السعودية',
-      status: 'active' as const,
-      lastActivity: 'منذ ساعتين',
-      requestType: 'purchase' as const,
-      votingStatus: 'open' as const,
-      activeVotes: 2
+  const quickActions = [
+    { 
+      title: 'إنشاء مجموعة جديدة', 
+      description: 'ابدأ مشروع تعاوني',
+      icon: <Users className="h-5 w-5" />,
+      action: () => navigate('/gateways/group-formation/create'),
+      color: 'blue'
     },
-    {
-      id: 2,
-      name: 'مجموعة تسويق المنتجات الحرفية',
-      description: 'تعاون في تسويق المنتجات الحرفية والتقليدية',
-      type: 'group' as const,
-      memberCount: 8,
-      category: 'التسويق',
-      location: 'دبي، الإمارات',
-      status: 'active' as const,
-      lastActivity: 'منذ 3 ساعات',
-      requestType: 'marketing' as const,
-      votingStatus: 'closed' as const,
-      activeVotes: 0
+    { 
+      title: 'تقديم عرض', 
+      description: 'قدم خدماتك أو منتجاتك',
+      icon: <Package className="h-5 w-5" />,
+      action: () => navigate('/gpo-platform'),
+      color: 'green'
     },
-    {
-      id: 3,
-      name: 'طلب خدمات تطوير موقع إلكتروني',
-      description: 'أبحث عن فريق تطوير لإنشاء موقع إلكتروني للتجارة الإلكترونية',
-      type: 'solo' as const,
-      memberCount: 1,
-      category: 'تطوير الويب',
-      location: 'القاهرة، مصر',
-      status: 'pending' as const,
-      lastActivity: 'منذ يوم',
-      requestType: 'service' as const
+    { 
+      title: 'طلب تحكيم', 
+      description: 'حل النزاعات قانونياً',
+      icon: <Scale className="h-5 w-5" />,
+      action: () => navigate('/arbitration'),
+      color: 'orange'
+    },
+    { 
+      title: 'بدء تصويت', 
+      description: 'اتخذ قرار جماعي',
+      icon: <Vote className="h-5 w-5" />,
+      action: () => navigate('/voting'),
+      color: 'purple'
     }
   ];
 
+  const myGroups = [
+    {
+      id: '1',
+      name: 'مجموعة الشراء التقني',
+      type: 'group_buying',
+      members: 12,
+      status: 'active',
+      progress: 75,
+      lastActivity: 'منذ ساعتين'
+    },
+    {
+      id: '2', 
+      name: 'تأسيس شركة ديلاوير',
+      type: 'incorporation',
+      members: 4,
+      status: 'active',
+      progress: 45,
+      lastActivity: 'منذ يوم'
+    },
+    {
+      id: '3',
+      name: 'حملة تسويقية مشتركة',
+      type: 'marketing',
+      members: 8,
+      status: 'completed',
+      progress: 100,
+      lastActivity: 'منذ أسبوع'
+    }
+  ];
+
+  const notifications = [
+    { type: 'vote', message: 'تصويت جديد: موافقة على مورد الأجهزة', time: 'منذ 5 دقائق' },
+    { type: 'contract', message: 'تم توقيع عقد التوريد بنجاح', time: 'منذ 30 دقيقة' },
+    { type: 'mcp', message: 'تحذير MCP: مراجعة شروط العقد الجديد', time: 'منذ ساعة' },
+    { type: 'group', message: 'عضو جديد انضم لمجموعة الشراء', time: 'منذ ساعتين' }
+  ];
+
   return (
-    <WorkspaceLayout 
+    <ModernDashboardLayout 
       title="مساحة العمل الذكية" 
-      subtitle="منصة متكاملة مع تقنيات الذكاء الاصطناعي وMCP"
+      subtitle="مركز التحكم الشامل لجميع أنشطة GPO"
     >
       <div className="space-y-6">
-        {/* Header Stats */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-          <Card>
-            <CardContent className="p-4">
-              <div className="flex items-center gap-3">
-                <div className="p-2 bg-blue-50 rounded-lg">
-                  <Users className="h-5 w-5 text-blue-600" />
-                </div>
-                <div>
-                  <div className="text-2xl font-bold text-blue-600">24</div>
-                  <div className="text-sm text-gray-600">المجموعات النشطة</div>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardContent className="p-4">
-              <div className="flex items-center gap-3">
-                <div className="p-2 bg-green-50 rounded-lg">
-                  <TrendingUp className="h-5 w-5 text-green-600" />
-                </div>
-                <div>
-                  <div className="text-2xl font-bold text-green-600">89%</div>
-                  <div className="text-sm text-gray-600">معدل النجاح</div>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardContent className="p-4">
-              <div className="flex items-center gap-3">
-                <div className="p-2 bg-purple-50 rounded-lg">
-                  <Brain className="h-5 w-5 text-purple-600" />
-                </div>
-                <div>
-                  <div className="text-2xl font-bold text-purple-600">12</div>
-                  <div className="text-sm text-gray-600">تحليلات MCP</div>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardContent className="p-4">
-              <div className="flex items-center gap-3">
-                <div className="p-2 bg-orange-50 rounded-lg">
-                  <Target className="h-5 w-5 text-orange-600" />
-                </div>
-                <div>
-                  <div className="text-2xl font-bold text-orange-600">156</div>
-                  <div className="text-sm text-gray-600">الأهداف المحققة</div>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
+        {/* Header Actions */}
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+          <div>
+            <h1 className="text-3xl font-bold text-gray-900">مساحة العمل</h1>
+            <p className="text-gray-600 mt-1">إدارة شاملة لجميع مشاريعك ونشاطاتك</p>
+          </div>
+          <div className="flex gap-2">
+            <Button variant="outline" size="sm">
+              <Search className="h-4 w-4 mr-2" />
+              بحث
+            </Button>
+            <Button variant="outline" size="sm">
+              <Bell className="h-4 w-4 mr-2" />
+              التنبيهات
+            </Button>
+            <Button size="sm">
+              <Plus className="h-4 w-4 mr-2" />
+              جديد
+            </Button>
+          </div>
         </div>
 
-        <Tabs defaultValue="dashboard" className="w-full">
-          <TabsList className="grid w-full grid-cols-5">
-            <TabsTrigger value="dashboard">لوحة التحكم</TabsTrigger>
-            <TabsTrigger value="groups">المجموعات</TabsTrigger>
-            <TabsTrigger value="roles">الأدوار</TabsTrigger>
-            <TabsTrigger value="mcp">تحليل MCP</TabsTrigger>
-            <TabsTrigger value="workspace">مساحة العمل</TabsTrigger>
+        {/* Quick Actions */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+          {quickActions.map((action, index) => (
+            <Card key={index} className="cursor-pointer hover:shadow-lg transition-shadow">
+              <CardContent className="p-4">
+                <div className="flex items-center gap-3">
+                  <div className={`p-2 bg-${action.color}-100 rounded-lg`}>
+                    {action.icon}
+                  </div>
+                  <div className="flex-1">
+                    <h4 className="font-semibold text-sm">{action.title}</h4>
+                    <p className="text-xs text-gray-600">{action.description}</p>
+                  </div>
+                </div>
+                <Button 
+                  className="w-full mt-3" 
+                  size="sm" 
+                  onClick={action.action}
+                  variant="outline"
+                >
+                  انتقال
+                </Button>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+
+        {/* Main Content Tabs */}
+        <Tabs value={activeTab} onValueChange={setActiveTab}>
+          <TabsList className="grid w-full grid-cols-6">
+            <TabsTrigger value="overview">نظرة عامة</TabsTrigger>
+            <TabsTrigger value="groups">مجموعاتي</TabsTrigger>
+            <TabsTrigger value="contracts">العقود</TabsTrigger>
+            <TabsTrigger value="voting">التصويت</TabsTrigger>
+            <TabsTrigger value="mcp">MCP</TabsTrigger>
+            <TabsTrigger value="system">النظام</TabsTrigger>
           </TabsList>
 
-          <TabsContent value="dashboard" className="space-y-6">
+          <TabsContent value="overview" className="space-y-6">
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+              {/* My Groups Summary */}
               <div className="lg:col-span-2">
                 <Card>
                   <CardHeader>
-                    <CardTitle>المجموعات المتاحة</CardTitle>
-                    <CardDescription>اكتشف المجموعات النشطة وانضم إليها</CardDescription>
+                    <CardTitle className="flex items-center gap-2">
+                      <Users className="h-5 w-5" />
+                      مجموعاتي ({myGroups.length})
+                    </CardTitle>
                   </CardHeader>
                   <CardContent>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      {mockGroups.slice(0, 4).map(group => (
-                        <GroupCard 
-                          key={group.id} 
-                          group={group} 
-                        />
+                    <div className="space-y-4">
+                      {myGroups.map((group) => (
+                        <div key={group.id} className="flex items-center justify-between p-4 border border-gray-100 rounded-lg">
+                          <div className="flex-1">
+                            <h4 className="font-semibold">{group.name}</h4>
+                            <div className="flex items-center gap-2 mt-1">
+                              <Badge variant="outline">{group.members} عضو</Badge>
+                              <Badge className={group.status === 'active' ? 'bg-green-100 text-green-800' : 'bg-blue-100 text-blue-800'}>
+                                {group.status === 'active' ? 'نشط' : 'مكتمل'}
+                              </Badge>
+                              <span className="text-xs text-gray-500">{group.lastActivity}</span>
+                            </div>
+                          </div>
+                          <div className="text-right">
+                            <div className="text-sm font-medium">{group.progress}%</div>
+                            <Button 
+                              size="sm" 
+                              variant="outline"
+                              onClick={() => navigate(`/groups/${group.id}`)}
+                            >
+                              عرض
+                            </Button>
+                          </div>
+                        </div>
                       ))}
                     </div>
                   </CardContent>
                 </Card>
               </div>
 
-              <div className="space-y-6">
-                <Card>
-                  <CardHeader>
-                    <CardTitle className="flex items-center gap-2">
-                      <Zap className="h-5 w-5 text-yellow-600" />
-                      الإجراءات السريعة
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent className="space-y-3">
-                    <Button className="w-full" onClick={() => window.location.href = '/gateways'}>
-                      تصفح البوابات
-                    </Button>
-                    <Button variant="outline" className="w-full" onClick={() => window.location.href = '/groups/create'}>
-                      إنشاء مجموعة جديدة
-                    </Button>
-                    <Button variant="outline" className="w-full" onClick={() => window.location.href = '/contracts'}>
-                      إدارة العقود
-                    </Button>
-                    <Button variant="outline" className="w-full" onClick={() => window.location.href = '/voting'}>
-                      نظام التصويت
-                    </Button>
-                  </CardContent>
-                </Card>
-
-                <Card>
-                  <CardHeader>
-                    <CardTitle>النشاط الأخير</CardTitle>
-                  </CardHeader>
-                  <CardContent className="space-y-3">
-                    <div className="flex items-start gap-3 pb-3 border-b">
-                      <div className="w-2 h-2 bg-green-600 rounded-full mt-2"></div>
-                      <div>
-                        <p className="text-sm font-medium">انضمام عضو جديد</p>
-                        <p className="text-xs text-gray-500">منذ دقيقتين</p>
+              {/* Notifications */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Bell className="h-5 w-5" />
+                    التنبيهات الأخيرة
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-3">
+                    {notifications.map((notification, index) => (
+                      <div key={index} className="p-3 border border-gray-100 rounded-lg">
+                        <p className="text-sm font-medium">{notification.message}</p>
+                        <p className="text-xs text-gray-500 mt-1">{notification.time}</p>
                       </div>
-                    </div>
-                    <div className="flex items-start gap-3 pb-3 border-b">
-                      <div className="w-2 h-2 bg-blue-600 rounded-full mt-2"></div>
-                      <div>
-                        <p className="text-sm font-medium">عرض جديد مقدم</p>
-                        <p className="text-xs text-gray-500">منذ 15 دقيقة</p>
-                      </div>
-                    </div>
-                    <div className="flex items-start gap-3">
-                      <div className="w-2 h-2 bg-purple-600 rounded-full mt-2"></div>
-                      <div>
-                        <p className="text-sm font-medium">تحليل MCP مكتمل</p>
-                        <p className="text-xs text-gray-500">منذ ساعة</p>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              </div>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
             </div>
           </TabsContent>
 
           <TabsContent value="groups" className="space-y-6">
-            <div className="flex justify-between items-center">
-              <div>
-                <h2 className="text-2xl font-bold">إدارة المجموعات</h2>
-                <p className="text-gray-600">عرض وإدارة جميع المجموعات المتاحة</p>
-              </div>
-              <Button onClick={() => window.location.href = '/gateways'}>
-                إنشاء مجموعة جديدة
-              </Button>
-            </div>
-
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {mockGroups.map(group => (
-                <GroupCard 
-                  key={group.id} 
-                  group={group} 
-                />
+              {myGroups.map((group) => (
+                <Card key={group.id} className="cursor-pointer hover:shadow-lg transition-shadow">
+                  <CardHeader>
+                    <CardTitle className="text-lg">{group.name}</CardTitle>
+                    <CardDescription>{group.members} أعضاء</CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="space-y-4">
+                      <div className="flex justify-between items-center">
+                        <span className="text-sm">التقدم</span>
+                        <span className="font-medium">{group.progress}%</span>
+                      </div>
+                      {/* ... keep existing code for progress bar and other group details */}
+                      <Button 
+                        className="w-full"
+                        onClick={() => navigate(`/groups/${group.id}`)}
+                      >
+                        عرض التفاصيل
+                      </Button>
+                    </div>
+                  </CardContent>
+                </Card>
               ))}
             </div>
           </TabsContent>
 
-          <TabsContent value="roles" className="space-y-6">
-            <RoleSelector 
-              selectedRoles={selectedRoles}
-              onRolesChange={setSelectedRoles}
-              maxRoles={3}
-            />
+          <TabsContent value="contracts" className="space-y-6">
+            <ContractWorkflow contractId="contract-123" type="supply" />
+          </TabsContent>
+
+          <TabsContent value="voting" className="space-y-6">
+            <EnhancedVotingSystem />
           </TabsContent>
 
           <TabsContent value="mcp" className="space-y-6">
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              <MCPIntegration groupId="workspace" context="group" />
-              <MCPIntegration groupId="workspace" context="supplier" />
-            </div>
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              <MCPIntegration groupId="workspace" context="freelancer" />
-              <MCPIntegration groupId="workspace" context="arbitration" />
+              <MCPIntegration groupId="general" context="group" />
+              <MCPIntegration groupId="general" context="investment" />
             </div>
           </TabsContent>
 
-          <TabsContent value="workspace" className="space-y-6">
-            {/* Role Switcher */}
-            <Card>
-              <CardHeader>
-                <CardTitle>تبديل الدور</CardTitle>
-                <CardDescription>غير دورك لعرض المحتوى المناسب</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="flex flex-wrap gap-4">
-                  <Button
-                    onClick={() => setCurrentRole('member')}
-                    variant={currentRole === 'member' ? 'default' : 'outline'}
-                    className="flex items-center gap-2"
-                  >
-                    <Users className="w-4 h-4" />
-                    عضو
-                  </Button>
-                  <Button
-                    onClick={() => setCurrentRole('supplier')}
-                    variant={currentRole === 'supplier' ? 'default' : 'outline'}
-                    className="flex items-center gap-2"
-                  >
-                    <Package className="w-4 h-4" />
-                    مورد
-                  </Button>
-                  <Button
-                    onClick={() => setCurrentRole('freelancer')}
-                    variant={currentRole === 'freelancer' ? 'default' : 'outline'}
-                    className="flex items-center gap-2"
-                  >
-                    <User className="w-4 h-4" />
-                    مستقل
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Role-specific Content */}
-            {currentRole === 'member' && (
-              <Card>
-                <CardHeader>
-                  <CardTitle>لوحة تحكم الأعضاء</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-gray-600 mb-4">إدارة مشاريعك والمشاركة في المجموعات</p>
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <div className="p-4 bg-blue-50 rounded-lg text-center">
-                      <div className="text-2xl font-bold text-blue-600 mb-2">5</div>
-                      <div className="text-sm text-blue-800">المجموعات المنضم إليها</div>
-                    </div>
-                    <div className="p-4 bg-green-50 rounded-lg text-center">
-                      <div className="text-2xl font-bold text-green-600 mb-2">12</div>
-                      <div className="text-sm text-green-800">التصويتات المشاركة</div>
-                    </div>
-                    <div className="p-4 bg-purple-50 rounded-lg text-center">
-                      <div className="text-2xl font-bold text-purple-600 mb-2">89%</div>
-                      <div className="text-sm text-purple-800">معدل النشاط</div>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            )}
-
-            {currentRole === 'supplier' && (
-              <Card>
-                <CardHeader>
-                  <CardTitle>لوحة تحكم الموردين</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-gray-600 mb-4">إدارة عروضك ومقترحاتك</p>
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <div className="p-4 bg-orange-50 rounded-lg text-center">
-                      <div className="text-2xl font-bold text-orange-600 mb-2">8</div>
-                      <div className="text-sm text-orange-800">العروض المقدمة</div>
-                    </div>
-                    <div className="p-4 bg-green-50 rounded-lg text-center">
-                      <div className="text-2xl font-bold text-green-600 mb-2">3</div>
-                      <div className="text-sm text-green-800">العروض المقبولة</div>
-                    </div>
-                    <div className="p-4 bg-blue-50 rounded-lg text-center">
-                      <div className="text-2xl font-bold text-blue-600 mb-2">95%</div>
-                      <div className="text-sm text-blue-800">تقييم الجودة</div>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            )}
-
-            {currentRole === 'freelancer' && (
-              <Card>
-                <CardHeader>
-                  <CardTitle>لوحة تحكم المستقلين</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-gray-600 mb-4">إدارة مشاريعك والعقود</p>
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <div className="p-4 bg-indigo-50 rounded-lg text-center">
-                      <div className="text-2xl font-bold text-indigo-600 mb-2">6</div>
-                      <div className="text-sm text-indigo-800">المشاريع النشطة</div>
-                    </div>
-                    <div className="p-4 bg-green-50 rounded-lg text-center">
-                      <div className="text-2xl font-bold text-green-600 mb-2">15</div>
-                      <div className="text-sm text-green-800">المشاريع المكتملة</div>
-                    </div>
-                    <div className="p-4 bg-yellow-50 rounded-lg text-center">
-                      <div className="text-2xl font-bold text-yellow-600 mb-2">4.8</div>
-                      <div className="text-sm text-yellow-800">التقييم العام</div>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            )}
+          <TabsContent value="system" className="space-y-6">
+            <ComprehensiveGPOSystem />
           </TabsContent>
         </Tabs>
       </div>
-    </WorkspaceLayout>
+    </ModernDashboardLayout>
   );
-};
-
-export default Workspace;
+}
