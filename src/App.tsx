@@ -1,3 +1,4 @@
+
 import React from 'react';
 import './i18n';
 import { Toaster } from "@/components/ui/toaster";
@@ -20,6 +21,7 @@ import PortalFreelancer from "./pages/PortalFreelancer";
 import GovernancePortal from "./pages/GovernancePortal";
 import ProposalView from "./pages/ProposalView";
 import Workspace from "./pages/Workspace";
+import GPOPlatform from "./pages/GPOPlatform";
 
 // Import gateway and portal pages
 import GatewaysHub from "./pages/GatewaysHub";
