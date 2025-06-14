@@ -2,215 +2,288 @@
 import React, { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
+import { Label } from '@/components/ui/label';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Progress } from '@/components/ui/progress';
 import { 
-  FileText, DollarSign, Clock, Upload, MessageCircle, 
-  CheckCircle, AlertTriangle, TrendingUp, Brain
+  Search, Filter, Upload, Send, Clock, DollarSign, 
+  Users, Building, FileText, CheckCircle, AlertCircle, 
+  Star, Calendar, MapPin, Briefcase, TrendingUp
 } from 'lucide-react';
-import { MCPIntegration } from '@/components/services/MCPIntegration';
-import { useToast } from '@/hooks/use-toast';
 
-interface ActiveTender {
+interface Tender {
   id: string;
-  groupId: string;
-  groupName: string;
-  type: 'supply' | 'service';
   title: string;
-  description: string;
+  groupName: string;
+  type: 'supply' | 'services' | 'mixed';
   budget: number;
   deadline: string;
+  location: string;
+  groupSize: number;
   requirements: string[];
-  members: number;
-  status: 'open' | 'negotiating' | 'closed';
+  status: 'open' | 'closing_soon' | 'evaluation';
+  mcpScore?: number;
+  urgency: 'low' | 'medium' | 'high';
 }
 
-const mockTenders: ActiveTender[] = [
+interface Proposal {
+  tenderId: string;
+  title: string;
+  description: string;
+  pricing: Record<string, number>;
+  deliverySchedule: string;
+  attachments: File[];
+  submitterType: 'supplier' | 'freelancer';
+}
+
+const mockTenders: Tender[] = [
   {
-    id: '1',
-    groupId: 'group-1',
-    groupName: 'مجموعة موردي التكنولوجيا',
+    id: 'tender-1',
+    title: 'توريد أجهزة حاسوب لمجموعة الشراء التقني',
+    groupName: 'مجموعة الشراء التقني',
     type: 'supply',
-    title: 'توريد أجهزة حاسوب للمكاتب',
-    description: 'نحتاج 50 جهاز حاسوب مكتبي بمواصفات عالية لشركات المجموعة',
-    budget: 75000,
-    deadline: '2024-02-15',
-    requirements: ['ضمان سنتين', 'التسليم خلال شهر', 'دعم فني محلي'],
-    members: 12,
-    status: 'open'
+    budget: 150000,
+    deadline: '2024-01-15',
+    location: 'الرياض، المملكة العربية السعودية',
+    groupSize: 12,
+    requirements: ['جودة عالية', 'ضمان سنتين', 'تدريب فني'],
+    status: 'open',
+    mcpScore: 8.5,
+    urgency: 'medium'
   },
   {
-    id: '2',
-    groupId: 'group-2',
-    groupName: 'مشروع التسويق الرقمي',
-    type: 'service',
-    title: 'خدمات التسويق الرقمي',
-    description: 'نبحث عن وكالة تسويق رقمي لإدارة الحملات الإعلانية',
-    budget: 25000,
-    deadline: '2024-02-20',
-    requirements: ['خبرة 5 سنوات', 'نتائج سابقة مثبتة', 'تقارير شهرية'],
-    members: 8,
-    status: 'open'
+    id: 'tender-2',
+    title: 'خدمات تصميم هوية بصرية للتسويق التعاوني',
+    groupName: 'مجموعة التسويق الخليجي',
+    type: 'services',
+    budget: 75000,
+    deadline: '2024-01-10',
+    location: 'دولة الإمارات العربية المتحدة',
+    groupSize: 8,
+    requirements: ['خبرة 5 سنوات', 'أعمال سابقة', 'تسليم سريع'],
+    status: 'closing_soon',
+    mcpScore: 9.2,
+    urgency: 'high'
+  },
+  {
+    id: 'tender-3',
+    title: 'خدمات قانونية لتأسيس شركة استثمارية',
+    groupName: 'مجموعة المستثمرين الشباب',
+    type: 'services',
+    budget: 45000,
+    deadline: '2024-01-20',
+    location: 'دولة الكويت',
+    groupSize: 5,
+    requirements: ['خبرة في الشركات الاستثمارية', 'ترخيص قانوني', 'متابعة دورية'],
+    status: 'evaluation',
+    mcpScore: 7.8,
+    urgency: 'low'
   }
 ];
 
 export function ProposalSubmissionPortal() {
-  const { toast } = useToast();
-  const [selectedTender, setSelectedTender] = useState<ActiveTender | null>(null);
-  const [currentTab, setCurrentTab] = useState('browse');
-  const [proposalData, setProposalData] = useState({
+  const [activeTab, setActiveTab] = useState('tenders');
+  const [selectedTender, setSelectedTender] = useState<Tender | null>(null);
+  const [proposal, setProposal] = useState<Proposal>({
+    tenderId: '',
     title: '',
     description: '',
-    pricing: '',
-    deliveryTime: '',
-    terms: '',
-    attachments: []
+    pricing: {},
+    deliverySchedule: '',
+    attachments: [],
+    submitterType: 'supplier'
   });
-  const [negotiationRound, setNegotiationRound] = useState(1);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [filterType, setFilterType] = useState('all');
 
-  const handleSubmitProposal = () => {
-    if (!selectedTender) return;
-
-    console.log('Submitting proposal for tender:', selectedTender.id);
-    console.log('Proposal data:', proposalData);
-
-    toast({
-      title: "تم تقديم العرض بنجاح",
-      description: "سيتم مراجعة عرضك من قبل المجموعة والرد خلال 48 ساعة",
-    });
-
-    // Reset form
-    setProposalData({
-      title: '',
-      description: '',
-      pricing: '',
-      deliveryTime: '',
-      terms: '',
-      attachments: []
-    });
-    setSelectedTender(null);
-    setCurrentTab('browse');
-  };
-
-  const getTenderStatusColor = (status: string) => {
+  const getStatusColor = (status: string) => {
     switch (status) {
-      case 'open': return 'bg-green-50 text-green-700';
-      case 'negotiating': return 'bg-yellow-50 text-yellow-700';
-      case 'closed': return 'bg-gray-50 text-gray-700';
-      default: return 'bg-gray-50 text-gray-700';
+      case 'open': return 'bg-green-100 text-green-800';
+      case 'closing_soon': return 'bg-orange-100 text-orange-800';
+      case 'evaluation': return 'bg-blue-100 text-blue-800';
+      default: return 'bg-gray-100 text-gray-800';
     }
   };
 
-  const renderTenderCard = (tender: ActiveTender) => (
-    <Card key={tender.id} className="hover:shadow-lg transition-shadow">
-      <CardHeader>
-        <div className="flex justify-between items-start">
-          <div>
-            <CardTitle className="text-lg">{tender.title}</CardTitle>
-            <CardDescription className="mt-1">
-              {tender.groupName} • {tender.members} أعضاء
-            </CardDescription>
-          </div>
-          <Badge variant="outline" className={getTenderStatusColor(tender.status)}>
-            {tender.status === 'open' && 'مفتوح'}
-            {tender.status === 'negotiating' && 'تفاوض'}
-            {tender.status === 'closed' && 'مغلق'}
-          </Badge>
-        </div>
-      </CardHeader>
-      <CardContent className="space-y-4">
-        <p className="text-gray-700">{tender.description}</p>
-        
-        <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-          <div className="text-center p-3 bg-gray-50 rounded-lg">
-            <div className="text-lg font-bold text-blue-600">
-              {tender.budget.toLocaleString()} ريال
-            </div>
-            <div className="text-sm text-gray-600">الميزانية</div>
-          </div>
-          <div className="text-center p-3 bg-gray-50 rounded-lg">
-            <div className="text-lg font-bold text-orange-600">
-              {new Date(tender.deadline).toLocaleDateString('ar')}
-            </div>
-            <div className="text-sm text-gray-600">آخر موعد</div>
-          </div>
-          <div className="text-center p-3 bg-gray-50 rounded-lg">
-            <div className="text-lg font-bold text-green-600">
-              {tender.type === 'supply' ? 'توريد' : 'خدمة'}
-            </div>
-            <div className="text-sm text-gray-600">نوع المناقصة</div>
-          </div>
-        </div>
+  const getStatusText = (status: string) => {
+    switch (status) {
+      case 'open': return 'مفتوح';
+      case 'closing_soon': return 'قريب الإغلاق';
+      case 'evaluation': return 'قيد التقييم';
+      default: return status;
+    }
+  };
 
-        <div>
-          <h4 className="font-medium text-gray-900 mb-2">المتطلبات:</h4>
-          <div className="space-y-1">
-            {tender.requirements.map((req, index) => (
-              <div key={index} className="flex items-center gap-2 text-sm text-gray-600">
-                <CheckCircle className="h-4 w-4 text-green-600" />
-                <span>{req}</span>
-              </div>
-            ))}
-          </div>
-        </div>
+  const getUrgencyColor = (urgency: string) => {
+    switch (urgency) {
+      case 'high': return 'text-red-600';
+      case 'medium': return 'text-orange-600';
+      case 'low': return 'text-green-600';
+      default: return 'text-gray-600';
+    }
+  };
 
-        <div className="flex gap-2">
-          <Button 
-            onClick={() => {
-              setSelectedTender(tender);
-              setCurrentTab('submit');
-            }}
-            className="flex-1"
-            disabled={tender.status !== 'open'}
-          >
-            تقديم عرض
-          </Button>
-          <Button variant="outline" onClick={() => console.log('View details:', tender.id)}>
-            التفاصيل
-          </Button>
-        </div>
-      </CardContent>
-    </Card>
-  );
+  const filteredTenders = mockTenders.filter(tender => {
+    const matchesSearch = tender.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         tender.groupName.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesFilter = filterType === 'all' || tender.type === filterType;
+    return matchesSearch && matchesFilter;
+  });
+
+  const handleSubmitProposal = () => {
+    if (!selectedTender) return;
+    
+    console.log('Submitting proposal:', {
+      tender: selectedTender,
+      proposal
+    });
+    
+    // Reset form
+    setProposal({
+      tenderId: '',
+      title: '',
+      description: '',
+      pricing: {},
+      deliverySchedule: '',
+      attachments: [],
+      submitterType: 'supplier'
+    });
+    setSelectedTender(null);
+    setActiveTab('tenders');
+  };
 
   return (
-    <div className="max-w-7xl mx-auto p-6">
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-900 mb-2">
-          بوابة تقديم العروض
-        </h1>
-        <p className="text-lg text-gray-600">
-          اعرض خدماتك ومنتجاتك على المجموعات النشطة
-        </p>
+    <div className="max-w-7xl mx-auto space-y-6">
+      <div className="text-center">
+        <h2 className="text-2xl font-bold mb-2">منصة تقديم العروض</h2>
+        <p className="text-gray-600">اعثر على الفرص المناسبة وقدم عروضك المتميزة</p>
       </div>
 
-      <Tabs value={currentTab} onValueChange={setCurrentTab}>
-        <TabsList className="grid w-full grid-cols-4">
-          <TabsTrigger value="browse">تصفح المناقصات</TabsTrigger>
+      <Tabs value={activeTab} onValueChange={setActiveTab}>
+        <TabsList className="grid w-full grid-cols-3">
+          <TabsTrigger value="tenders">المناقصات المتاحة</TabsTrigger>
           <TabsTrigger value="submit">تقديم عرض</TabsTrigger>
-          <TabsTrigger value="negotiations">التفاوض</TabsTrigger>
           <TabsTrigger value="my-proposals">عروضي</TabsTrigger>
         </TabsList>
 
-        <TabsContent value="browse" className="space-y-6">
-          <div className="flex justify-between items-center">
-            <h2 className="text-xl font-semibold text-gray-900">
-              المناقصات النشطة ({mockTenders.filter(t => t.status === 'open').length})
-            </h2>
-            <div className="flex gap-2">
-              <Button variant="outline" size="sm">
-                تصفية
-              </Button>
-              <Button variant="outline" size="sm">
-                ترتيب
-              </Button>
-            </div>
-          </div>
+        <TabsContent value="tenders" className="space-y-6">
+          {/* Search and Filter */}
+          <Card>
+            <CardContent className="p-4">
+              <div className="flex flex-col md:flex-row gap-4">
+                <div className="flex-1">
+                  <div className="relative">
+                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+                    <Input
+                      placeholder="البحث في المناقصات..."
+                      value={searchTerm}
+                      onChange={(e) => setSearchTerm(e.target.value)}
+                      className="pl-10"
+                    />
+                  </div>
+                </div>
+                <div className="w-full md:w-48">
+                  <Select value={filterType} onValueChange={setFilterType}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="نوع المناقصة" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">جميع الأنواع</SelectItem>
+                      <SelectItem value="supply">توريد</SelectItem>
+                      <SelectItem value="services">خدمات</SelectItem>
+                      <SelectItem value="mixed">مختلط</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
 
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            {mockTenders.map(renderTenderCard)}
+          {/* Tenders List */}
+          <div className="grid grid-cols-1 gap-6">
+            {filteredTenders.map((tender) => (
+              <Card key={tender.id} className="hover:shadow-lg transition-shadow">
+                <CardHeader>
+                  <div className="flex justify-between items-start">
+                    <div className="flex-1">
+                      <div className="flex items-center gap-2 mb-2">
+                        <CardTitle className="text-lg">{tender.title}</CardTitle>
+                        <Badge className={getStatusColor(tender.status)}>
+                          {getStatusText(tender.status)}
+                        </Badge>
+                      </div>
+                      <CardDescription className="flex items-center gap-4 text-sm">
+                        <span className="flex items-center gap-1">
+                          <Building className="h-4 w-4" />
+                          {tender.groupName}
+                        </span>
+                        <span className="flex items-center gap-1">
+                          <Users className="h-4 w-4" />
+                          {tender.groupSize} أعضاء
+                        </span>
+                        <span className="flex items-center gap-1">
+                          <MapPin className="h-4 w-4" />
+                          {tender.location}
+                        </span>
+                      </CardDescription>
+                    </div>
+                    <div className="text-right">
+                      <div className="text-lg font-bold text-green-600">
+                        {tender.budget.toLocaleString()} ريال
+                      </div>
+                      {tender.mcpScore && (
+                        <div className="flex items-center gap-1 text-sm text-gray-600">
+                          <Star className="h-3 w-3 text-yellow-500" />
+                          MCP Score: {tender.mcpScore}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </CardHeader>
+
+                <CardContent className="space-y-4">
+                  <div>
+                    <h4 className="font-medium mb-2">المتطلبات:</h4>
+                    <div className="flex flex-wrap gap-2">
+                      {tender.requirements.map((req, index) => (
+                        <Badge key={index} variant="outline" className="text-xs">
+                          {req}
+                        </Badge>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-4 text-sm text-gray-600">
+                      <span className="flex items-center gap-1">
+                        <Calendar className="h-4 w-4" />
+                        ينتهي: {tender.deadline}
+                      </span>
+                      <span className={`flex items-center gap-1 ${getUrgencyColor(tender.urgency)}`}>
+                        <Clock className="h-4 w-4" />
+                        {tender.urgency === 'high' ? 'عاجل' : 
+                         tender.urgency === 'medium' ? 'متوسط' : 'غير عاجل'}
+                      </span>
+                    </div>
+                    
+                    <Button
+                      onClick={() => {
+                        setSelectedTender(tender);
+                        setProposal(prev => ({ ...prev, tenderId: tender.id }));
+                        setActiveTab('submit');
+                      }}
+                      disabled={tender.status === 'evaluation'}
+                    >
+                      {tender.status === 'evaluation' ? 'قيد التقييم' : 'تقديم عرض'}
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
           </div>
         </TabsContent>
 
@@ -218,151 +291,169 @@ export function ProposalSubmissionPortal() {
           {selectedTender ? (
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
               {/* Tender Details */}
-              <div className="lg:col-span-1">
-                <Card>
-                  <CardHeader>
-                    <CardTitle>تفاصيل المناقصة</CardTitle>
-                  </CardHeader>
-                  <CardContent className="space-y-4">
-                    <div>
-                      <h3 className="font-semibold text-lg">{selectedTender.title}</h3>
-                      <p className="text-gray-600 text-sm mt-1">{selectedTender.description}</p>
+              <Card className="lg:col-span-1">
+                <CardHeader>
+                  <CardTitle className="text-lg">تفاصيل المناقصة</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div>
+                    <h4 className="font-medium">{selectedTender.title}</h4>
+                    <p className="text-sm text-gray-600">{selectedTender.groupName}</p>
+                  </div>
+                  
+                  <div className="space-y-2 text-sm">
+                    <div className="flex justify-between">
+                      <span>الميزانية:</span>
+                      <span className="font-medium">{selectedTender.budget.toLocaleString()} ريال</span>
                     </div>
-                    
-                    <div className="space-y-2 text-sm">
-                      <div className="flex items-center gap-2">
-                        <DollarSign className="h-4 w-4 text-green-600" />
-                        <span>الميزانية: {selectedTender.budget.toLocaleString()} ريال</span>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <Clock className="h-4 w-4 text-orange-600" />
-                        <span>آخر موعد: {new Date(selectedTender.deadline).toLocaleDateString('ar')}</span>
-                      </div>
+                    <div className="flex justify-between">
+                      <span>الموقع:</span>
+                      <span className="font-medium">{selectedTender.location}</span>
                     </div>
-                  </CardContent>
-                </Card>
+                    <div className="flex justify-between">
+                      <span>عدد الأعضاء:</span>
+                      <span className="font-medium">{selectedTender.groupSize}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span>الموعد النهائي:</span>
+                      <span className="font-medium">{selectedTender.deadline}</span>
+                    </div>
+                  </div>
 
-                {/* MCP Analysis */}
-                <div className="mt-6">
-                  <MCPIntegration 
-                    groupId={selectedTender.groupId} 
-                    context={selectedTender.type === 'supply' ? 'supplier' : 'freelancer'} 
-                  />
-                </div>
-              </div>
+                  <div>
+                    <h5 className="font-medium mb-2">المتطلبات:</h5>
+                    <ul className="space-y-1 text-sm">
+                      {selectedTender.requirements.map((req, index) => (
+                        <li key={index} className="flex items-center gap-2">
+                          <CheckCircle className="h-3 w-3 text-green-600" />
+                          {req}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                </CardContent>
+              </Card>
 
               {/* Proposal Form */}
-              <div className="lg:col-span-2">
-                <Card>
-                  <CardHeader>
-                    <CardTitle>تقديم عرضك</CardTitle>
-                    <CardDescription>
-                      أدخل تفاصيل عرضك للمناقصة
-                    </CardDescription>
-                  </CardHeader>
-                  <CardContent className="space-y-6">
+              <Card className="lg:col-span-2">
+                <CardHeader>
+                  <CardTitle>تقديم العرض</CardTitle>
+                  <CardDescription>
+                    املأ النموذج بعناية لتقديم عرض متميز
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-6">
+                  <div>
+                    <Label htmlFor="submitterType">نوع مقدم العرض</Label>
+                    <Select value={proposal.submitterType} onValueChange={(value: 'supplier' | 'freelancer') => 
+                      setProposal(prev => ({ ...prev, submitterType: value }))
+                    }>
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="supplier">مورد</SelectItem>
+                        <SelectItem value="freelancer">مستقل</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  <div>
+                    <Label htmlFor="proposalTitle">عنوان العرض</Label>
+                    <Input
+                      id="proposalTitle"
+                      value={proposal.title}
+                      onChange={(e) => setProposal(prev => ({ ...prev, title: e.target.value }))}
+                      placeholder="عنوان مختصر وواضح لعرضك"
+                    />
+                  </div>
+
+                  <div>
+                    <Label htmlFor="description">وصف العرض التفصيلي</Label>
+                    <Textarea
+                      id="description"
+                      value={proposal.description}
+                      onChange={(e) => setProposal(prev => ({ ...prev, description: e.target.value }))}
+                      placeholder="اشرح خدماتك أو منتجاتك والقيمة المضافة التي تقدمها"
+                      rows={6}
+                    />
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
-                        عنوان العرض *
-                      </label>
+                      <Label htmlFor="totalPrice">السعر الإجمالي (ريال)</Label>
                       <Input
-                        placeholder="عنوان مختصر وجذاب"
-                        value={proposalData.title}
-                        onChange={(e) => setProposalData({...proposalData, title: e.target.value})}
+                        id="totalPrice"
+                        type="number"
+                        value={proposal.pricing.total || ''}
+                        onChange={(e) => setProposal(prev => ({
+                          ...prev,
+                          pricing: { ...prev.pricing, total: parseFloat(e.target.value) }
+                        }))}
+                        placeholder="0"
                       />
                     </div>
-
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
-                        وصف العرض *
-                      </label>
-                      <Textarea
-                        placeholder="اشرح كيف ستلبي متطلبات المناقصة"
-                        rows={4}
-                        value={proposalData.description}
-                        onChange={(e) => setProposalData({...proposalData, description: e.target.value})}
+                      <Label htmlFor="deliverySchedule">جدول التسليم</Label>
+                      <Input
+                        id="deliverySchedule"
+                        value={proposal.deliverySchedule}
+                        onChange={(e) => setProposal(prev => ({ ...prev, deliverySchedule: e.target.value }))}
+                        placeholder="مثال: 14 يوم عمل"
                       />
                     </div>
+                  </div>
 
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
-                          السعر المقترح (ريال) *
-                        </label>
-                        <Input
-                          type="number"
-                          placeholder="0"
-                          value={proposalData.pricing}
-                          onChange={(e) => setProposalData({...proposalData, pricing: e.target.value})}
-                        />
-                      </div>
+                  {/* File Upload */}
+                  <div>
+                    <Label>المرفقات</Label>
+                    <Card className="border-dashed border-2 border-gray-300 hover:border-blue-400 transition-colors">
+                      <CardContent className="p-6">
+                        <div className="text-center">
+                          <Upload className="h-8 w-8 text-gray-400 mx-auto mb-2" />
+                          <p className="text-sm text-gray-600 mb-2">
+                            ارفع نماذج من أعمالك، شهادات، أو ملفات تقنية
+                          </p>
+                          <Button variant="outline" size="sm">
+                            اختيار الملفات
+                          </Button>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  </div>
 
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
-                          مدة التسليم *
-                        </label>
-                        <Input
-                          placeholder="مثل: 30 يوم"
-                          value={proposalData.deliveryTime}
-                          onChange={(e) => setProposalData({...proposalData, deliveryTime: e.target.value})}
-                        />
-                      </div>
-                    </div>
-
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
-                        الشروط والأحكام
-                      </label>
-                      <Textarea
-                        placeholder="شروط خاصة، ضمانات، أو ملاحظات مهمة"
-                        rows={3}
-                        value={proposalData.terms}
-                        onChange={(e) => setProposalData({...proposalData, terms: e.target.value})}
-                      />
-                    </div>
-
-                    <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
-                      <Upload className="mx-auto h-12 w-12 text-gray-400 mb-4" />
-                      <h3 className="text-lg font-medium text-gray-900 mb-2">رفع المرفقات</h3>
-                      <p className="text-gray-500 mb-4">نماذج أعمال، شهادات، أو مستندات داعمة</p>
-                      <Button variant="outline">
-                        <FileText className="h-4 w-4 mr-2" />
-                        اختيار الملفات
-                      </Button>
-                    </div>
-
-                    <div className="bg-blue-50 p-4 rounded-lg">
-                      <h4 className="font-medium text-blue-900 mb-2">معلومات التفاوض</h4>
-                      <div className="grid grid-cols-2 gap-4 text-sm text-blue-800">
-                        <div>• حتى 3 جولات تفاوض رسمية</div>
-                        <div>• جولة إضافية اختيارية</div>
-                        <div>• إدارة بواسطة MCP الذكي</div>
-                        <div>• عقد آلي عند القبول</div>
-                      </div>
-                    </div>
-
-                    <div className="flex gap-4">
-                      <Button onClick={handleSubmitProposal} className="flex-1">
-                        تقديم العرض
-                      </Button>
-                      <Button variant="outline" onClick={() => setSelectedTender(null)}>
-                        إلغاء
-                      </Button>
-                    </div>
-                  </CardContent>
-                </Card>
-              </div>
+                  <div className="flex gap-4">
+                    <Button 
+                      variant="outline" 
+                      onClick={() => {
+                        setSelectedTender(null);
+                        setActiveTab('tenders');
+                      }}
+                      className="flex-1"
+                    >
+                      إلغاء
+                    </Button>
+                    <Button 
+                      onClick={handleSubmitProposal}
+                      className="flex-1"
+                      disabled={!proposal.title || !proposal.description || !proposal.pricing.total}
+                    >
+                      <Send className="h-4 w-4 mr-2" />
+                      إرسال العرض
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
             </div>
           ) : (
             <Card>
-              <CardContent className="text-center py-12">
-                <FileText className="mx-auto h-12 w-12 text-gray-400 mb-4" />
-                <p className="text-gray-600">اختر مناقصة من قائمة المناقصات النشطة لتقديم عرضك</p>
-                <Button 
-                  variant="outline" 
-                  className="mt-4"
-                  onClick={() => setCurrentTab('browse')}
-                >
+              <CardContent className="p-12 text-center">
+                <FileText className="h-16 w-16 text-gray-400 mx-auto mb-4" />
+                <h3 className="text-lg font-medium mb-2">اختر مناقصة لتقديم عرض</h3>
+                <p className="text-gray-600 mb-4">
+                  يجب اختيار مناقصة من القائمة المتاحة أولاً
+                </p>
+                <Button onClick={() => setActiveTab('tenders')}>
                   تصفح المناقصات
                 </Button>
               </CardContent>
@@ -370,75 +461,25 @@ export function ProposalSubmissionPortal() {
           )}
         </TabsContent>
 
-        <TabsContent value="negotiations" className="space-y-6">
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <MessageCircle className="h-5 w-5" />
-                التفاوض النشط
-              </CardTitle>
-              <CardDescription>
-                إدارة جولات التفاوض مع المجموعات
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                <div className="flex items-center justify-between p-4 bg-yellow-50 rounded-lg">
-                  <div>
-                    <h4 className="font-medium text-yellow-900">
-                      توريد أجهزة حاسوب - الجولة {negotiationRound}/3
-                    </h4>
-                    <p className="text-sm text-yellow-700">
-                      طلبت المجموعة تعديل السعر وشروط الضمان
-                    </p>
-                  </div>
-                  <Button size="sm" className="bg-yellow-600 hover:bg-yellow-700">
-                    الرد على التفاوض
-                  </Button>
-                </div>
-
-                <div className="text-center py-8 text-gray-500">
-                  لا توجد مفاوضات أخرى نشطة
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
-
         <TabsContent value="my-proposals" className="space-y-6">
           <Card>
             <CardHeader>
               <CardTitle>عروضي المقدمة</CardTitle>
               <CardDescription>
-                تتبع حالة جميع العروض التي قدمتها
+                تتبع حالة عروضك والتفاوضات الجارية
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="space-y-4">
-                <div className="grid grid-cols-1 md:grid-cols-4 gap-4 text-center">
-                  <div className="p-4 bg-blue-50 rounded-lg">
-                    <div className="text-2xl font-bold text-blue-600">5</div>
-                    <div className="text-sm text-blue-700">عروض مقدمة</div>
-                  </div>
-                  <div className="p-4 bg-yellow-50 rounded-lg">
-                    <div className="text-2xl font-bold text-yellow-600">2</div>
-                    <div className="text-sm text-yellow-700">قيد التفاوض</div>
-                  </div>
-                  <div className="p-4 bg-green-50 rounded-lg">
-                    <div className="text-2xl font-bold text-green-600">1</div>
-                    <div className="text-sm text-green-700">مقبولة</div>
-                  </div>
-                  <div className="p-4 bg-red-50 rounded-lg">
-                    <div className="text-2xl font-bold text-red-600">2</div>
-                    <div className="text-sm text-red-700">مرفوضة</div>
-                  </div>
-                </div>
-
-                <div className="border-t pt-4">
-                  <p className="text-gray-500 text-center">
-                    سيتم عرض تفاصيل العروض هنا
-                  </p>
-                </div>
+              <div className="text-center py-12">
+                <Briefcase className="h-16 w-16 text-gray-400 mx-auto mb-4" />
+                <h3 className="text-lg font-medium mb-2">لا توجد عروض مقدمة</h3>
+                <p className="text-gray-600 mb-4">
+                  ابدأ بتقديم عروضك للمناقصات المتاحة
+                </p>
+                <Button onClick={() => setActiveTab('tenders')}>
+                  <TrendingUp className="h-4 w-4 mr-2" />
+                  استكشف الفرص
+                </Button>
               </div>
             </CardContent>
           </Card>

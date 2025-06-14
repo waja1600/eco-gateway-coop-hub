@@ -3,211 +3,359 @@ import React, { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Checkbox } from '@/components/ui/checkbox';
-import { 
-  Users, Building, Briefcase, Scale, DollarSign, Crown,
-  CheckCircle, AlertTriangle, Leaf
-} from 'lucide-react';
-import { UserRole } from '@/types/gpo';
+import { Progress } from '@/components/ui/progress';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Users, Shield, TrendingUp, Briefcase, Building, Check, User } from 'lucide-react';
+
+interface Role {
+  id: string;
+  name: string;
+  nameAr: string;
+  description: string;
+  descriptionAr: string;
+  permissions: string[];
+  requirements: string[];
+  benefits: string[];
+  stakingRequired: number;
+  governanceWeight: number;
+  icon: React.ReactNode;
+  color: string;
+  currentHolders: number;
+  maxHolders: number;
+}
 
 interface RoleSelectorProps {
-  selectedRoles: UserRole[];
-  onRolesChange: (roles: UserRole[]) => void;
+  selectedRoles?: string[];
+  onRolesChange?: (roles: string[]) => void;
   maxRoles?: number;
 }
 
-const roleDefinitions = [
-  {
-    role: 'founder' as UserRole,
-    title: 'مؤسس',
-    description: 'إنشاء وإدارة المجموعات والمشاريع',
-    icon: <Crown className="h-6 w-6" />,
-    color: 'bg-yellow-500',
-    permissions: ['create_groups', 'manage_equity', 'assign_admins'],
-    responsibilities: ['إنشاء المجموعات', 'توزيع الأسهم', 'تعيين المديرين']
-  },
-  {
-    role: 'member' as UserRole,
-    title: 'عضو',
-    description: 'المشاركة في المجموعات والتصويت',
-    icon: <Users className="h-6 w-6" />,
-    color: 'bg-blue-500',
-    permissions: ['join_groups', 'vote', 'view_contracts'],
-    responsibilities: ['الانضمام للمجموعات', 'التصويت', 'مراجعة العقود']
-  },
-  {
-    role: 'supplier' as UserRole,
-    title: 'مورد',
-    description: 'تقديم المنتجات والخدمات للمجموعات',
-    icon: <Building className="h-6 w-6" />,
-    color: 'bg-green-500',
-    permissions: ['submit_proposals', 'negotiate_contracts', 'fulfill_orders'],
-    responsibilities: ['تقديم العروض', 'التفاوض', 'تنفيذ الطلبات']
-  },
-  {
-    role: 'freelancer' as UserRole,
-    title: 'مستقل',
-    description: 'تقديم الخدمات المتخصصة والاستشارات',
-    icon: <Briefcase className="h-6 w-6" />,
-    color: 'bg-purple-500',
-    permissions: ['submit_proposals', 'provide_services', 'join_projects'],
-    responsibilities: ['تقديم الخدمات', 'الاستشارات', 'المشاريع المتخصصة']
-  },
-  {
-    role: 'investor' as UserRole,
-    title: 'مستثمر',
-    description: 'الاستثمار في المشاريع والحصول على عوائد',
-    icon: <DollarSign className="h-6 w-6" />,
-    color: 'bg-indigo-500',
-    permissions: ['invest_in_projects', 'view_returns', 'receive_dividends'],
-    responsibilities: ['الاستثمار', 'تتبع العوائد', 'استلام الأرباح']
-  },
-  {
-    role: 'arbitrator' as UserRole,
-    title: 'محكم',
-    description: 'حل النزاعات وإصدار الأحكام',
-    icon: <Scale className="h-6 w-6" />,
-    color: 'bg-red-500',
-    permissions: ['resolve_disputes', 'issue_verdicts', 'enforce_decisions'],
-    responsibilities: ['حل النزاعات', 'إصدار الأحكام', 'تنفيذ القرارات']
-  }
-];
+export function RoleSelector({ selectedRoles = [], onRolesChange, maxRoles = 1 }: RoleSelectorProps) {
+  const [selected, setSelected] = useState<string[]>(selectedRoles);
+  const userStake = 1500;
+  const userReputation = 85;
 
-export function RoleSelector({ selectedRoles, onRolesChange, maxRoles = 3 }: RoleSelectorProps) {
-  const [hoveredRole, setHoveredRole] = useState<UserRole | null>(null);
-
-  const handleRoleToggle = (role: UserRole) => {
-    if (selectedRoles.includes(role)) {
-      onRolesChange(selectedRoles.filter(r => r !== role));
-    } else if (selectedRoles.length < maxRoles) {
-      onRolesChange([...selectedRoles, role]);
+  const roles: Role[] = [
+    {
+      id: 'member',
+      name: 'Member',
+      nameAr: 'عضو',
+      description: 'Basic membership with voting rights',
+      descriptionAr: 'عضوية أساسية مع حقوق التصويت',
+      permissions: ['vote', 'propose_basic', 'join_groups', 'access_contracts'],
+      requirements: ['Account verification', 'Minimum 30 days activity'],
+      benefits: ['1x voting power', 'Access to all groups', 'Standard support'],
+      stakingRequired: 100,
+      governanceWeight: 1.0,
+      icon: <User className="h-6 w-6" />,
+      color: 'blue',
+      currentHolders: 245,
+      maxHolders: 1000
+    },
+    {
+      id: 'premium_member',
+      name: 'Premium Member',
+      nameAr: 'عضو مميز',
+      description: 'Enhanced membership with additional benefits',
+      descriptionAr: 'عضوية محسنة مع مزايا إضافية',
+      permissions: ['vote', 'propose_advanced', 'create_groups', 'priority_support'],
+      requirements: ['6 months membership', 'Minimum reputation score 75'],
+      benefits: ['1.5x voting power', 'Create unlimited groups', 'Priority support', 'Reduced fees'],
+      stakingRequired: 500,
+      governanceWeight: 1.5,
+      icon: <Users className="h-6 w-6" />,
+      color: 'purple',
+      currentHolders: 89,
+      maxHolders: 200
+    },
+    {
+      id: 'validator',
+      name: 'Validator',
+      nameAr: 'مصدق',
+      description: 'Governance validator with contract verification rights',
+      descriptionAr: 'مصدق حوكمة مع حقوق التحقق من العقود',
+      permissions: ['validate_contracts', 'dispute_resolution', 'governance_proposals'],
+      requirements: ['Technical expertise', 'Community reputation 90+', '1 year membership'],
+      benefits: ['2x voting power', 'Validation rewards', 'VIP support', 'Fee sharing'],
+      stakingRequired: 2000,
+      governanceWeight: 2.0,
+      icon: <Shield className="h-6 w-6" />,
+      color: 'green',
+      currentHolders: 24,
+      maxHolders: 50
+    },
+    {
+      id: 'enterprise',
+      name: 'Enterprise',
+      nameAr: 'مؤسسي',
+      description: 'Corporate membership for organizations',
+      descriptionAr: 'عضوية مؤسسية للشركات والمنظمات',
+      permissions: ['bulk_operations', 'api_access', 'custom_integrations', 'dedicated_support'],
+      requirements: ['Corporate verification', 'Legal entity registration'],
+      benefits: ['Multi-user accounts', 'API access', 'Custom solutions', 'Dedicated manager'],
+      stakingRequired: 10000,
+      governanceWeight: 5.0,
+      icon: <Building className="h-6 w-6" />,
+      color: 'orange',
+      currentHolders: 12,
+      maxHolders: 25
     }
+  ];
+
+  const getRoleColor = (color: string) => {
+    const colors = {
+      blue: 'bg-blue-50 text-blue-700 border-blue-200',
+      purple: 'bg-purple-50 text-purple-700 border-purple-200',
+      green: 'bg-green-50 text-green-700 border-green-200',
+      orange: 'bg-orange-50 text-orange-700 border-orange-200'
+    };
+    return colors[color as keyof typeof colors] || colors.blue;
   };
 
-  const isRoleSelected = (role: UserRole) => selectedRoles.includes(role);
-  const canSelectMore = selectedRoles.length < maxRoles;
+  const getIconColor = (color: string) => {
+    const colors = {
+      blue: 'text-blue-600',
+      purple: 'text-purple-600',
+      green: 'text-green-600',
+      orange: 'text-orange-600'
+    };
+    return colors[color as keyof typeof colors] || colors.blue;
+  };
+
+  const canSelectRole = (role: Role) => {
+    if (role.stakingRequired > userStake) return false;
+    if (role.id === 'validator' && userReputation < 90) return false;
+    if (role.currentHolders >= role.maxHolders) return false;
+    return true;
+  };
+
+  const handleRoleSelect = (roleId: string) => {
+    let newSelected = [...selected];
+    
+    if (newSelected.includes(roleId)) {
+      newSelected = newSelected.filter(id => id !== roleId);
+    } else {
+      if (maxRoles === 1) {
+        newSelected = [roleId];
+      } else if (newSelected.length < maxRoles) {
+        newSelected.push(roleId);
+      }
+    }
+    
+    setSelected(newSelected);
+    onRolesChange?.(newSelected);
+  };
 
   return (
     <div className="space-y-6">
       <div className="text-center">
-        <h3 className="text-2xl font-bold text-gray-900 mb-2">
-          اختر أدوارك في المنصة
-        </h3>
-        <p className="text-gray-600">
-          يمكنك اختيار حتى {maxRoles} أدوار ({selectedRoles.length}/{maxRoles} محدد)
-        </p>
+        <h2 className="text-2xl font-bold mb-2">اختيار الدور</h2>
+        <p className="text-gray-600">اختر دورك في المنصة لتحديد صلاحياتك ومزاياك</p>
+        {maxRoles > 1 && (
+          <p className="text-sm text-gray-500 mt-2">
+            يمكنك اختيار حتى {maxRoles} أدوار ({selected.length}/{maxRoles})
+          </p>
+        )}
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {roleDefinitions.map((roleDef) => {
-          const isSelected = isRoleSelected(roleDef.role);
-          const canSelect = canSelectMore || isSelected;
-          
-          return (
-            <Card 
-              key={roleDef.role}
-              className={`cursor-pointer transition-all duration-200 ${
-                isSelected 
-                  ? 'ring-2 ring-blue-500 bg-blue-50' 
-                  : canSelect 
-                    ? 'hover:shadow-lg hover:scale-105' 
-                    : 'opacity-50 cursor-not-allowed'
-              }`}
-              onClick={() => canSelect && handleRoleToggle(roleDef.role)}
-              onMouseEnter={() => setHoveredRole(roleDef.role)}
-              onMouseLeave={() => setHoveredRole(null)}
-            >
-              <CardHeader>
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <div className={`p-2 rounded-lg ${roleDef.color} text-white`}>
-                      {roleDef.icon}
-                    </div>
-                    <div>
-                      <CardTitle className="text-lg">{roleDef.title}</CardTitle>
-                      <CardDescription className="text-sm">
-                        {roleDef.description}
-                      </CardDescription>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    {isSelected && (
-                      <CheckCircle className="h-5 w-5 text-green-600" />
-                    )}
-                    <Checkbox
-                      checked={isSelected}
-                      disabled={!canSelect}
-                    />
-                  </div>
-                </div>
-              </CardHeader>
+      <Tabs defaultValue="roles" className="w-full">
+        <TabsList className="grid w-full grid-cols-3">
+          <TabsTrigger value="roles">الأدوار المتاحة</TabsTrigger>
+          <TabsTrigger value="comparison">المقارنة</TabsTrigger>
+          <TabsTrigger value="requirements">المتطلبات</TabsTrigger>
+        </TabsList>
 
-              {(hoveredRole === roleDef.role || isSelected) && (
-                <CardContent>
-                  <div className="space-y-3">
+        <TabsContent value="roles" className="space-y-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {roles.map((role) => {
+              const isSelected = selected.includes(role.id);
+              const canSelect = canSelectRole(role);
+
+              return (
+                <Card 
+                  key={role.id} 
+                  className={`transition-all duration-200 hover:shadow-lg cursor-pointer ${
+                    isSelected ? 'ring-2 ring-blue-500' : ''
+                  } ${!canSelect ? 'opacity-60' : ''}`}
+                  onClick={() => canSelect && handleRoleSelect(role.id)}
+                >
+                  <CardHeader>
+                    <div className="flex items-start justify-between">
+                      <div className="flex items-center gap-3">
+                        <div className={`p-2 rounded-lg ${getRoleColor(role.color)}`}>
+                          <span className={getIconColor(role.color)}>{role.icon}</span>
+                        </div>
+                        <div>
+                          <CardTitle className="text-lg">{role.nameAr}</CardTitle>
+                          <CardDescription>{role.descriptionAr}</CardDescription>
+                        </div>
+                      </div>
+                      {isSelected && (
+                        <Check className="h-6 w-6 text-blue-500" />
+                      )}
+                    </div>
+                  </CardHeader>
+
+                  <CardContent className="space-y-4">
+                    <div className="grid grid-cols-2 gap-4 text-sm">
+                      <div>
+                        <span className="text-gray-500">الرهان المطلوب:</span>
+                        <div className="font-bold">{role.stakingRequired.toLocaleString()} رمز</div>
+                      </div>
+                      <div>
+                        <span className="text-gray-500">قوة التصويت:</span>
+                        <div className="font-bold">{role.governanceWeight}x</div>
+                      </div>
+                    </div>
+
                     <div>
-                      <h4 className="font-medium text-gray-900 mb-2">الصلاحيات:</h4>
-                      <div className="flex flex-wrap gap-1">
-                        {roleDef.permissions.map((permission) => (
-                          <Badge key={permission} variant="outline" className="text-xs">
-                            {permission}
-                          </Badge>
+                      <span className="text-sm text-gray-500 block mb-2">التوفر:</span>
+                      <div className="flex items-center gap-2">
+                        <Progress 
+                          value={(role.currentHolders / role.maxHolders) * 100} 
+                          className="flex-1 h-2"
+                        />
+                        <span className="text-sm text-gray-600">
+                          {role.currentHolders}/{role.maxHolders}
+                        </span>
+                      </div>
+                    </div>
+
+                    <div>
+                      <span className="text-sm font-medium mb-2 block">الصلاحيات:</span>
+                      <div className="space-y-1">
+                        {role.permissions.slice(0, 3).map((permission, index) => (
+                          <div key={index} className="flex items-center gap-2 text-sm">
+                            <Check className="h-3 w-3 text-green-600" />
+                            <span>{permission}</span>
+                          </div>
+                        ))}
+                        {role.permissions.length > 3 && (
+                          <div className="text-xs text-gray-500">
+                            +{role.permissions.length - 3} صلاحيات أخرى
+                          </div>
+                        )}
+                      </div>
+                    </div>
+
+                    <div>
+                      <span className="text-sm font-medium mb-2 block">المزايا:</span>
+                      <div className="space-y-1">
+                        {role.benefits.slice(0, 2).map((benefit, index) => (
+                          <div key={index} className="flex items-center gap-2 text-sm">
+                            <TrendingUp className="h-3 w-3 text-blue-600" />
+                            <span>{benefit}</span>
+                          </div>
                         ))}
                       </div>
                     </div>
-                    
-                    <div>
-                      <h4 className="font-medium text-gray-900 mb-2">المسؤوليات:</h4>
-                      <ul className="space-y-1">
-                        {roleDef.responsibilities.map((responsibility, index) => (
-                          <li key={index} className="flex items-center gap-2 text-sm text-gray-600">
-                            <div className="w-1.5 h-1.5 bg-blue-600 rounded-full"></div>
-                            <span>{responsibility}</span>
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
-                  </div>
-                </CardContent>
-              )}
+
+                    {!canSelect && (
+                      <div className="p-3 bg-red-50 rounded-lg">
+                        <div className="text-sm text-red-700 font-medium mb-1">غير متاح:</div>
+                        <div className="text-xs text-red-600">
+                          {role.stakingRequired > userStake && `يتطلب ${role.stakingRequired} رمز (لديك ${userStake})`}
+                          {role.id === 'validator' && userReputation < 90 && 'يتطلب نقاط سمعة 90+'}
+                          {role.currentHolders >= role.maxHolders && 'تم الوصول للحد الأقصى'}
+                        </div>
+                      </div>
+                    )}
+
+                    <Button 
+                      className="w-full"
+                      disabled={!canSelect}
+                      variant={isSelected ? "default" : "outline"}
+                    >
+                      {isSelected ? 'مختار' : 
+                       canSelect ? 'اختيار هذا الدور' : 'غير متاح'}
+                    </Button>
+                  </CardContent>
+                </Card>
+              );
+            })}
+          </div>
+        </TabsContent>
+
+        <TabsContent value="comparison" className="space-y-6">
+          <Card>
+            <CardHeader>
+              <CardTitle>مقارنة الأدوار</CardTitle>
+              <CardDescription>مقارنة مفصلة بين جميع الأدوار المتاحة</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="overflow-x-auto">
+                <table className="w-full text-sm">
+                  <thead>
+                    <tr className="border-b">
+                      <th className="text-right p-2">الدور</th>
+                      <th className="text-center p-2">الرهان المطلوب</th>
+                      <th className="text-center p-2">قوة التصويت</th>
+                      <th className="text-center p-2">إنشاء مجموعات</th>
+                      <th className="text-center p-2">التحقق من العقود</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {roles.map((role) => (
+                      <tr key={role.id} className="border-b">
+                        <td className="p-2 font-medium">{role.nameAr}</td>
+                        <td className="text-center p-2">{role.stakingRequired.toLocaleString()}</td>
+                        <td className="text-center p-2">{role.governanceWeight}x</td>
+                        <td className="text-center p-2">
+                          {role.permissions.includes('create_groups') ? '✓' : '✗'}
+                        </td>
+                        <td className="text-center p-2">
+                          {role.permissions.includes('validate_contracts') ? '✓' : '✗'}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="requirements" className="space-y-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <Card>
+              <CardHeader>
+                <CardTitle>حالتك الحالية</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="flex justify-between">
+                  <span>الرصيد المتاح:</span>
+                  <span className="font-bold">{userStake.toLocaleString()} رمز</span>
+                </div>
+                <div className="flex justify-between">
+                  <span>نقاط السمعة:</span>
+                  <span className="font-bold">{userReputation}/100</span>
+                </div>
+                <div className="flex justify-between">
+                  <span>الأدوار المختارة:</span>
+                  <span className="font-bold">{selected.length}</span>
+                </div>
+              </CardContent>
             </Card>
-          );
-        })}
-      </div>
 
-      {selectedRoles.length > 0 && (
-        <Card className="bg-green-50 border-green-200">
-          <CardContent className="p-4">
-            <div className="flex items-center gap-2 mb-2">
-              <CheckCircle className="h-5 w-5 text-green-600" />
-              <span className="font-medium text-green-800">الأدوار المحددة:</span>
-            </div>
-            <div className="flex flex-wrap gap-2">
-              {selectedRoles.map((role) => {
-                const roleDef = roleDefinitions.find(r => r.role === role);
-                return (
-                  <Badge key={role} className="bg-green-100 text-green-800">
-                    {roleDef?.title}
-                  </Badge>
-                );
-              })}
-            </div>
-          </CardContent>
-        </Card>
-      )}
-
-      {!canSelectMore && (
-        <Card className="bg-yellow-50 border-yellow-200">
-          <CardContent className="p-4">
-            <div className="flex items-center gap-2">
-              <AlertTriangle className="h-5 w-5 text-yellow-600" />
-              <span className="text-yellow-800">
-                وصلت للحد الأقصى من الأدوار ({maxRoles}). يمكنك إلغاء تحديد دور لاختيار آخر.
-              </span>
-            </div>
-          </CardContent>
-        </Card>
-      )}
+            <Card>
+              <CardHeader>
+                <CardTitle>كيفية الترقية</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-3">
+                <div className="text-sm">
+                  <div className="font-medium mb-1">لترقية دورك:</div>
+                  <ul className="space-y-1 text-gray-600">
+                    <li>• زيد رصيدك من الرموز المميزة</li>
+                    <li>• احصل على نقاط سمعة أعلى</li>
+                    <li>• شارك بفعالية في المجتمع</li>
+                    <li>• اكمل متطلبات الدور المطلوب</li>
+                  </ul>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        </TabsContent>
+      </Tabs>
     </div>
   );
 }
