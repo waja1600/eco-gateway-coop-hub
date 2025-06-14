@@ -345,7 +345,7 @@ export function GPODashboard() {
                     </div>
                     <div className="flex justify-between">
                       <span>وقت الاستجابة</span>
-                      <span className="font-medium text-green-600">< 2 ساعة</span>
+                      <span className="font-medium text-green-600">أقل من ساعتين</span>
                     </div>
                   </div>
                 </div>
@@ -374,7 +374,7 @@ export function GPODashboard() {
                 </div>
                 <div className="flex items-center justify-between">
                   <span>وقت الاستجابة</span>
-                  <span className="font-medium">< 1s</span>
+                  <span className="font-medium">أقل من ثانية واحدة</span>
                 </div>
                 <Button size="sm" className="w-full">
                   تحديث النماذج
