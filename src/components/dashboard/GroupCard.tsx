@@ -61,6 +61,7 @@ export function GroupCard({ group, onViewGroup }: GroupCardProps) {
   };
 
   const handleCardClick = () => {
+    console.log('Card clicked, navigating to group details:', group.id);
     if (onViewGroup) {
       onViewGroup(group.id);
     }
@@ -69,6 +70,8 @@ export function GroupCard({ group, onViewGroup }: GroupCardProps) {
 
   const handleActionClick = (e: React.MouseEvent) => {
     e.stopPropagation();
+    console.log('Action button clicked for group:', group.id, 'Type:', group.type, 'Request type:', group.requestType);
+    
     // Handle different actions based on group type and request type
     if (group.type === 'solo' || group.requestType === 'service') {
       // Navigate to offer submission
@@ -79,6 +82,12 @@ export function GroupCard({ group, onViewGroup }: GroupCardProps) {
     }
   };
 
+  const handleDetailsClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    console.log('Details button clicked for group:', group.id);
+    navigate(`/groups/${group.id}`);
+  };
+
   return (
     <Card 
       className="group hover:shadow-lg transition-all duration-300 border border-gray-200 hover:border-blue-300 cursor-pointer"
@@ -86,17 +95,17 @@ export function GroupCard({ group, onViewGroup }: GroupCardProps) {
     >
       <CardHeader className="pb-3">
         <div className="flex items-start justify-between">
-          <div className="flex items-center space-x-3">
+          <div className="flex items-center space-x-3 space-x-reverse">
             <Avatar className="h-12 w-12">
               <AvatarFallback className="bg-gradient-to-r from-blue-500 to-purple-600 text-white font-semibold">
                 {group.name.substring(0, 2).toUpperCase()}
               </AvatarFallback>
             </Avatar>
             <div>
-              <CardTitle className="text-lg font-semibold text-gray-900 group-hover:text-blue-600 transition-colors">
+              <CardTitle className="text-lg font-semibold text-gray-900 group-hover:text-blue-600 transition-colors text-right">
                 {group.name}
               </CardTitle>
-              <div className="flex items-center space-x-2 mt-1">
+              <div className="flex items-center space-x-2 space-x-reverse mt-1">
                 <Badge variant="outline" className="text-xs">
                   {group.category}
                 </Badge>
@@ -120,22 +129,22 @@ export function GroupCard({ group, onViewGroup }: GroupCardProps) {
       </CardHeader>
 
       <CardContent className="space-y-4">
-        <CardDescription className="text-gray-600 line-clamp-2">
+        <CardDescription className="text-gray-600 line-clamp-2 text-right">
           {group.description}
         </CardDescription>
 
         <div className="flex items-center justify-between text-sm text-gray-500">
-          <div className="flex items-center space-x-4">
-            <div className="flex items-center space-x-1">
+          <div className="flex items-center space-x-4 space-x-reverse">
+            <div className="flex items-center space-x-1 space-x-reverse">
               <Users className="h-4 w-4" />
               <span>{group.memberCount} عضو</span>
             </div>
-            <div className="flex items-center space-x-1">
+            <div className="flex items-center space-x-1 space-x-reverse">
               <MapPin className="h-4 w-4" />
               <span>{group.location}</span>
             </div>
           </div>
-          <div className="flex items-center space-x-1">
+          <div className="flex items-center space-x-1 space-x-reverse">
             <Clock className="h-4 w-4" />
             <span>{group.lastActivity}</span>
           </div>
@@ -144,7 +153,7 @@ export function GroupCard({ group, onViewGroup }: GroupCardProps) {
         {/* Voting Status */}
         {group.votingStatus && (
           <div className="flex items-center justify-between p-2 bg-gray-50 rounded-lg">
-            <div className="flex items-center space-x-2">
+            <div className="flex items-center space-x-2 space-x-reverse">
               <Vote className="h-4 w-4 text-blue-600" />
               <span className="text-sm font-medium">
                 حالة التصويت: {group.votingStatus === 'open' ? 'مفتوح' : 
@@ -159,19 +168,23 @@ export function GroupCard({ group, onViewGroup }: GroupCardProps) {
           </div>
         )}
 
-        <div className="flex items-center justify-between pt-2">
-          <div className="flex space-x-2">
-            <Button variant="outline" size="sm" onClick={(e) => e.stopPropagation()}>
-              المناقشة
-            </Button>
-          </div>
+        <div className="flex items-center justify-between pt-2 space-x-2 space-x-reverse">
+          <Button 
+            variant="outline" 
+            size="sm" 
+            onClick={handleDetailsClick}
+            className="flex items-center gap-1"
+          >
+            التفاصيل
+            <ArrowRight className="h-4 w-4" />
+          </Button>
           <Button 
             size="sm" 
             onClick={handleActionClick}
-            className="bg-blue-600 hover:bg-blue-700"
+            className="bg-blue-600 hover:bg-blue-700 flex items-center gap-1"
           >
             {getActionButtonText()}
-            <ArrowRight className="h-4 w-4 ml-1" />
+            <ArrowRight className="h-4 w-4" />
           </Button>
         </div>
       </CardContent>

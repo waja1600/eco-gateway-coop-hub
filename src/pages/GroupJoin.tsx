@@ -8,7 +8,7 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Users, Building, DollarSign, Calendar, CheckCircle, AlertCircle } from 'lucide-react';
+import { Users, Building, DollarSign, Calendar, CheckCircle, AlertCircle, ArrowLeft } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
 export default function GroupJoin() {
@@ -23,11 +23,13 @@ export default function GroupJoin() {
     contactInfo: ''
   });
 
+  console.log('GroupJoin rendered for group:', groupId);
+
   // Mock group data
   const groupData = {
     id: groupId,
-    name: 'مجموعة موردي التكنولوجيا',
-    description: 'شراء جماعي لمعدات التكنولوجيا وتراخيص البرمجيات للشركات الصغيرة',
+    name: 'مجموعة الشراء التعاوني للتكنولوجيا',
+    description: 'شراء جماعي لمعدات التكنولوجيا وتراخيص البرمجيات للشركات الصغيرة والمتوسطة',
     type: 'group',
     category: 'التكنولوجيا',
     memberCount: 15,
@@ -48,6 +50,7 @@ export default function GroupJoin() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    console.log('Form submitted for group:', groupId, formData);
     setIsSubmitting(true);
 
     // Simulate API call
@@ -62,10 +65,40 @@ export default function GroupJoin() {
     navigate(`/groups/${groupId}`);
   };
 
+  const handleBackToGroup = () => {
+    console.log('Back to group details clicked');
+    navigate(`/groups/${groupId}`);
+  };
+
+  const handleBackToGroups = () => {
+    console.log('Back to groups clicked');
+    navigate('/workspace');
+  };
+
   return (
     <ModernMainLayout>
       <div className="container px-4 md:px-6 py-8">
         <div className="max-w-4xl mx-auto">
+          {/* Back Buttons */}
+          <div className="flex gap-2 mb-6">
+            <Button 
+              variant="outline" 
+              onClick={handleBackToGroup}
+              className="flex items-center gap-2"
+            >
+              <ArrowLeft className="h-4 w-4" />
+              العودة للمجموعة
+            </Button>
+            <Button 
+              variant="ghost" 
+              onClick={handleBackToGroups}
+              className="flex items-center gap-2"
+            >
+              <ArrowLeft className="h-4 w-4" />
+              جميع المجموعات
+            </Button>
+          </div>
+
           {/* Header */}
           <div className="text-center mb-8">
             <h1 className="text-3xl font-bold text-gray-900 mb-2">
@@ -81,13 +114,13 @@ export default function GroupJoin() {
             <div className="lg:col-span-1 space-y-6">
               <Card>
                 <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
+                  <CardTitle className="flex items-center gap-2 text-right">
                     <Building className="h-5 w-5 text-blue-600" />
                     معلومات المجموعة
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
-                  <div>
+                  <div className="text-right">
                     <h3 className="font-semibold text-lg">{groupData.name}</h3>
                     <p className="text-gray-600 text-sm mt-1">{groupData.description}</p>
                   </div>
@@ -108,7 +141,7 @@ export default function GroupJoin() {
 
               <Card>
                 <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
+                  <CardTitle className="flex items-center gap-2 text-right">
                     <CheckCircle className="h-5 w-5 text-green-600" />
                     المتطلبات
                   </CardTitle>
@@ -116,7 +149,7 @@ export default function GroupJoin() {
                 <CardContent>
                   <ul className="space-y-2">
                     {groupData.requirements.map((req, index) => (
-                      <li key={index} className="flex items-start gap-2 text-sm">
+                      <li key={index} className="flex items-start gap-2 text-sm text-right">
                         <div className="w-1.5 h-1.5 bg-green-600 rounded-full mt-2 flex-shrink-0"></div>
                         <span>{req}</span>
                       </li>
@@ -127,7 +160,7 @@ export default function GroupJoin() {
 
               <Card>
                 <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
+                  <CardTitle className="flex items-center gap-2 text-right">
                     <DollarSign className="h-5 w-5 text-purple-600" />
                     المزايا
                   </CardTitle>
@@ -135,7 +168,7 @@ export default function GroupJoin() {
                 <CardContent>
                   <ul className="space-y-2">
                     {groupData.benefits.map((benefit, index) => (
-                      <li key={index} className="flex items-start gap-2 text-sm">
+                      <li key={index} className="flex items-start gap-2 text-sm text-right">
                         <div className="w-1.5 h-1.5 bg-purple-600 rounded-full mt-2 flex-shrink-0"></div>
                         <span>{benefit}</span>
                       </li>
@@ -149,60 +182,61 @@ export default function GroupJoin() {
             <div className="lg:col-span-2">
               <Card>
                 <CardHeader>
-                  <CardTitle>نموذج طلب الانضمام</CardTitle>
-                  <CardDescription>
+                  <CardTitle className="text-right">نموذج طلب الانضمام</CardTitle>
+                  <CardDescription className="text-right">
                     يرجى ملء جميع الحقول المطلوبة بدقة
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
                   <form onSubmit={handleSubmit} className="space-y-6">
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                      <label className="block text-sm font-medium text-gray-700 mb-2 text-right">
                         دافع الانضمام *
                       </label>
                       <Textarea
                         placeholder="اشرح سبب رغبتك في الانضمام إلى هذه المجموعة"
                         value={formData.motivation}
                         onChange={(e) => setFormData({...formData, motivation: e.target.value})}
-                        className="min-h-[100px]"
+                        className="min-h-[100px] text-right"
                         required
                       />
                     </div>
 
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                      <label className="block text-sm font-medium text-gray-700 mb-2 text-right">
                         خبرتك في المجال *
                       </label>
                       <Textarea
                         placeholder="صف خبرتك في مجال التكنولوجيا والشراء الجماعي"
                         value={formData.experience}
                         onChange={(e) => setFormData({...formData, experience: e.target.value})}
-                        className="min-h-[100px]"
+                        className="min-h-[100px] text-right"
                         required
                       />
                     </div>
 
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                      <label className="block text-sm font-medium text-gray-700 mb-2 text-right">
                         مساهمتك المتوقعة *
                       </label>
                       <Textarea
                         placeholder="كيف يمكنك المساهمة في نجاح المجموعة؟"
                         value={formData.expectedContribution}
                         onChange={(e) => setFormData({...formData, expectedContribution: e.target.value})}
-                        className="min-h-[100px]"
+                        className="min-h-[100px] text-right"
                         required
                       />
                     </div>
 
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                      <label className="block text-sm font-medium text-gray-700 mb-2 text-right">
                         معلومات التواصل *
                       </label>
                       <Input
                         placeholder="البريد الإلكتروني أو رقم الهاتف"
                         value={formData.contactInfo}
                         onChange={(e) => setFormData({...formData, contactInfo: e.target.value})}
+                        className="text-right"
                         required
                       />
                     </div>
@@ -218,7 +252,7 @@ export default function GroupJoin() {
                       <Button
                         type="button"
                         variant="outline"
-                        onClick={() => navigate(`/groups/${groupId}`)}
+                        onClick={handleBackToGroup}
                       >
                         إلغاء
                       </Button>
