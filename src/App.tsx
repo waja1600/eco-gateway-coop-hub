@@ -1,4 +1,3 @@
-
 import React from 'react';
 import './i18n';
 import { Toaster } from "@/components/ui/toaster";
@@ -69,6 +68,9 @@ const App = () => (
               <Route path="/login" element={<Login />} />
               <Route path="/register" element={<Register />} />
               <Route path="/role-selection" element={<RoleSelection />} />
+              
+              {/* GPO Platform - Main Route */}
+              <Route path="/gpo-platform" element={<GPOPlatform />} />
               
               {/* Gateway routes */}
               <Route path="/gateways" element={<GatewaysHub />} />
