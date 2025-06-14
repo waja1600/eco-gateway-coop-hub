@@ -4,406 +4,495 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Progress } from '@/components/ui/progress';
+import { MCPIntegration } from '@/components/services/MCPIntegration';
 import { 
-  LayoutDashboard, Users, DollarSign, TrendingUp, AlertTriangle,
-  CheckCircle, Clock, FileText, Vote, Brain, Leaf, Globe
+  Users, TrendingUp, DollarSign, Clock, CheckCircle, AlertTriangle,
+  Building, Package, Vote, MessageSquare, Scale, Brain, Zap,
+  Globe, Shield, Leaf, Star, Target, Activity
 } from 'lucide-react';
-import { Dashboard } from '@/types/gpo';
 
-const mockDashboardData: Dashboard = {
+interface DashboardStats {
+  totalGroups: number;
+  activeContracts: number;
+  pendingVotes: number;
+  revenueThisMonth: number;
+  userGrowth: number;
+  contractCompletionRate: number;
+  averageNegotiationTime: number;
+  mcpSystemHealth: number;
+}
+
+interface RecentActivity {
+  id: string;
+  type: 'group_created' | 'proposal_submitted' | 'vote_completed' | 'contract_signed';
+  title: string;
+  description: string;
+  timestamp: string;
+  status: 'success' | 'pending' | 'warning';
+}
+
+const mockStats: DashboardStats = {
   totalGroups: 156,
   activeContracts: 89,
-  pendingVotes: 23,
-  revenueThisMonth: 2847650,
-  userGrowth: 15.2,
-  contractCompletionRate: 94.7,
-  averageNegotiationTime: 4.2,
-  topPerformingCategories: ['التكنولوجيا', 'التسويق', 'الخدمات المهنية'],
-  mcpSystemHealth: 98.5
+  pendingVotes: 12,
+  revenueThisMonth: 45600,
+  userGrowth: 23.5,
+  contractCompletionRate: 94.2,
+  averageNegotiationTime: 2.3,
+  mcpSystemHealth: 98.7
 };
 
-const recentActivities = [
+const mockActivities: RecentActivity[] = [
   {
     id: '1',
     type: 'group_created',
-    title: 'تم إنشاء مجموعة جديدة',
-    description: 'مجموعة شراء المعدات الطبية',
+    title: 'تأسيس مجموعة جديدة',
+    description: 'مجموعة شراء تكنولوجيا - 6 أعضاء',
     timestamp: 'منذ 5 دقائق',
-    icon: <Users className="h-4 w-4" />,
-    color: 'text-blue-600'
+    status: 'success'
   },
   {
     id: '2',
-    type: 'contract_signed',
-    title: 'تم توقيع عقد',
-    description: 'عقد توريد أجهزة حاسوب - 50,000 ريال',
+    type: 'proposal_submitted',
+    title: 'عرض جديد مقدم',
+    description: 'مورد يقدم عرض توريد معدات',
     timestamp: 'منذ 15 دقيقة',
-    icon: <FileText className="h-4 w-4" />,
-    color: 'text-green-600'
+    status: 'pending'
   },
   {
     id: '3',
     type: 'vote_completed',
-    title: 'اكتمل التصويت',
-    description: 'موافقة على عرض شركة التقنية المتقدمة',
+    title: 'تصويت مكتمل',
+    description: 'قبول عرض مستقل تصميم',
     timestamp: 'منذ 30 دقيقة',
-    icon: <Vote className="h-4 w-4" />,
-    color: 'text-purple-600'
+    status: 'success'
   },
   {
     id: '4',
-    type: 'esg_project',
-    title: 'مشروع ESG جديد',
-    description: 'مشروع الطاقة المتجددة حصل على التمويل',
+    type: 'contract_signed',
+    title: 'توقيع عقد',
+    description: 'عقد تأسيس شركة محدودة',
     timestamp: 'منذ ساعة',
-    icon: <Leaf className="h-4 w-4" />,
-    color: 'text-green-600'
+    status: 'success'
   }
 ];
 
-const contractStatuses = [
-  { status: 'active', count: 45, label: 'نشط', color: 'bg-green-500' },
-  { status: 'negotiating', count: 28, label: 'تفاوض', color: 'bg-yellow-500' },
-  { status: 'pending', count: 16, label: 'معلق', color: 'bg-orange-500' },
-  { status: 'completed', count: 234, label: 'مكتمل', color: 'bg-blue-500' }
-];
-
 export function GPODashboard() {
-  const [selectedTimeframe, setSelectedTimeframe] = useState('month');
+  const [selectedPeriod, setSelectedPeriod] = useState('month');
+
+  const getActivityIcon = (type: string) => {
+    switch (type) {
+      case 'group_created': return <Users className="h-4 w-4" />;
+      case 'proposal_submitted': return <Package className="h-4 w-4" />;
+      case 'vote_completed': return <Vote className="h-4 w-4" />;
+      case 'contract_signed': return <CheckCircle className="h-4 w-4" />;
+      default: return <Activity className="h-4 w-4" />;
+    }
+  };
+
+  const getActivityColor = (status: string) => {
+    switch (status) {
+      case 'success': return 'text-green-600 bg-green-50';
+      case 'pending': return 'text-yellow-600 bg-yellow-50';
+      case 'warning': return 'text-red-600 bg-red-50';
+      default: return 'text-gray-600 bg-gray-50';
+    }
+  };
 
   return (
-    <div className="max-w-7xl mx-auto p-6 space-y-6">
+    <div className="space-y-6">
       {/* Header */}
-      <div className="flex justify-between items-center">
+      <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900">
-            لوحة تحكم GPO الرئيسية
-          </h1>
-          <p className="text-lg text-gray-600">
-            مراقبة وإدارة جميع أنشطة المنصة
-          </p>
+          <h1 className="text-3xl font-bold text-gray-900">لوحة تحكم GPO</h1>
+          <p className="text-gray-600">إدارة شاملة للمنصة التعاونية</p>
         </div>
-        <div className="flex gap-2">
-          <Button variant="outline" size="sm">
-            تصدير التقرير
-          </Button>
-          <Button variant="outline" size="sm">
-            الإعدادات
+        <div className="flex items-center gap-3">
+          <Badge className="bg-green-100 text-green-800">
+            <Brain className="h-3 w-3 mr-1" />
+            MCP نشط
+          </Badge>
+          <Button size="sm">
+            <Zap className="h-4 w-4 mr-2" />
+            تحديث البيانات
           </Button>
         </div>
       </div>
 
-      {/* Key Metrics */}
+      {/* Main Stats Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">إجمالي المجموعات</CardTitle>
-            <Users className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{mockDashboardData.totalGroups}</div>
-            <p className="text-xs text-muted-foreground">
-              +{mockDashboardData.userGrowth}% من الشهر الماضي
-            </p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">العقود النشطة</CardTitle>
-            <FileText className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{mockDashboardData.activeContracts}</div>
-            <p className="text-xs text-muted-foreground">
-              معدل إتمام {mockDashboardData.contractCompletionRate}%
-            </p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">الإيرادات الشهرية</CardTitle>
-            <DollarSign className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">
-              {mockDashboardData.revenueThisMonth.toLocaleString()} ريال
+          <CardContent className="p-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-gray-600">المجموعات النشطة</p>
+                <p className="text-3xl font-bold text-blue-600">{mockStats.totalGroups}</p>
+                <p className="text-sm text-green-600">+{mockStats.userGrowth}% نمو</p>
+              </div>
+              <div className="p-3 bg-blue-50 rounded-full">
+                <Users className="h-6 w-6 text-blue-600" />
+              </div>
             </div>
-            <p className="text-xs text-muted-foreground">
-              +12.5% من الشهر الماضي
-            </p>
           </CardContent>
         </Card>
 
         <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">صحة نظام MCP</CardTitle>
-            <Brain className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-green-600">
-              {mockDashboardData.mcpSystemHealth}%
+          <CardContent className="p-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-gray-600">العقود النشطة</p>
+                <p className="text-3xl font-bold text-green-600">{mockStats.activeContracts}</p>
+                <p className="text-sm text-green-600">{mockStats.contractCompletionRate}% مكتملة</p>
+              </div>
+              <div className="p-3 bg-green-50 rounded-full">
+                <CheckCircle className="h-6 w-6 text-green-600" />
+              </div>
             </div>
-            <p className="text-xs text-muted-foreground">
-              جميع الأنظمة تعمل بكفاءة
-            </p>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardContent className="p-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-gray-600">الإيرادات الشهرية</p>
+                <p className="text-3xl font-bold text-purple-600">${mockStats.revenueThisMonth.toLocaleString()}</p>
+                <p className="text-sm text-purple-600">+15% عن الشهر السابق</p>
+              </div>
+              <div className="p-3 bg-purple-50 rounded-full">
+                <DollarSign className="h-6 w-6 text-purple-600" />
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardContent className="p-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-gray-600">صحة نظام MCP</p>
+                <p className="text-3xl font-bold text-orange-600">{mockStats.mcpSystemHealth}%</p>
+                <p className="text-sm text-orange-600">متوسط وقت التحليل: {mockStats.averageNegotiationTime}د</p>
+              </div>
+              <div className="p-3 bg-orange-50 rounded-full">
+                <Brain className="h-6 w-6 text-orange-600" />
+              </div>
+            </div>
           </CardContent>
         </Card>
       </div>
 
-      {/* Main Dashboard Content */}
+      {/* Main Dashboard Tabs */}
       <Tabs defaultValue="overview" className="space-y-6">
         <TabsList className="grid w-full grid-cols-5">
           <TabsTrigger value="overview">نظرة عامة</TabsTrigger>
-          <TabsTrigger value="contracts">العقود</TabsTrigger>
           <TabsTrigger value="groups">المجموعات</TabsTrigger>
+          <TabsTrigger value="contracts">العقود</TabsTrigger>
           <TabsTrigger value="analytics">التحليلات</TabsTrigger>
           <TabsTrigger value="system">النظام</TabsTrigger>
         </TabsList>
 
         <TabsContent value="overview" className="space-y-6">
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            {/* Recent Activities */}
+            {/* Activity Feed */}
             <div className="lg:col-span-2">
               <Card>
                 <CardHeader>
-                  <CardTitle>الأنشطة الأخيرة</CardTitle>
-                  <CardDescription>
-                    آخر الأحداث والتحديثات في المنصة
-                  </CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  {recentActivities.map((activity) => (
-                    <div key={activity.id} className="flex items-start gap-4 p-3 hover:bg-gray-50 rounded-lg">
-                      <div className={`p-2 rounded-full bg-gray-100 ${activity.color}`}>
-                        {activity.icon}
-                      </div>
-                      <div className="flex-1">
-                        <h4 className="font-medium text-gray-900">{activity.title}</h4>
-                        <p className="text-sm text-gray-600">{activity.description}</p>
-                        <p className="text-xs text-gray-500 mt-1">{activity.timestamp}</p>
-                      </div>
-                    </div>
-                  ))}
-                </CardContent>
-              </Card>
-            </div>
-
-            {/* Quick Stats */}
-            <div className="space-y-6">
-              <Card>
-                <CardHeader>
-                  <CardTitle>التصويتات المعلقة</CardTitle>
+                  <CardTitle className="flex items-center gap-2">
+                    <Activity className="h-5 w-5" />
+                    النشاط الأخير
+                  </CardTitle>
+                  <CardDescription>آخر الأحداث في المنصة</CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <div className="text-center">
-                    <div className="text-3xl font-bold text-orange-600 mb-2">
-                      {mockDashboardData.pendingVotes}
-                    </div>
-                    <div className="text-sm text-gray-600 mb-4">
-                      تصويت في انتظار اتخاذ قرار
-                    </div>
-                    <Button size="sm" className="w-full">
-                      مراجعة التصويتات
-                    </Button>
+                  <div className="space-y-4">
+                    {mockActivities.map((activity) => (
+                      <div key={activity.id} className="flex items-start gap-3 p-3 border border-gray-100 rounded-lg">
+                        <div className={`p-2 rounded-full ${getActivityColor(activity.status)}`}>
+                          {getActivityIcon(activity.type)}
+                        </div>
+                        <div className="flex-1">
+                          <h4 className="font-medium text-right">{activity.title}</h4>
+                          <p className="text-sm text-gray-600 text-right">{activity.description}</p>
+                          <p className="text-xs text-gray-500 text-right">{activity.timestamp}</p>
+                        </div>
+                      </div>
+                    ))}
                   </div>
                 </CardContent>
               </Card>
+            </div>
 
+            {/* Quick Actions & MCP */}
+            <div className="space-y-6">
               <Card>
                 <CardHeader>
-                  <CardTitle>الفئات الأكثر نشاطاً</CardTitle>
+                  <CardTitle className="flex items-center gap-2">
+                    <Zap className="h-5 w-5" />
+                    إجراءات سريعة
+                  </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-3">
-                  {mockDashboardData.topPerformingCategories.map((category, index) => (
-                    <div key={index} className="flex items-center justify-between">
-                      <span className="text-sm text-gray-700">{category}</span>
-                      <Badge variant="outline" className="text-xs">
-                        #{index + 1}
-                      </Badge>
-                    </div>
-                  ))}
+                  <Button className="w-full" variant="outline">
+                    <Building className="h-4 w-4 mr-2" />
+                    إنشاء مجموعة
+                  </Button>
+                  <Button className="w-full" variant="outline">
+                    <Package className="h-4 w-4 mr-2" />
+                    استعراض العروض
+                  </Button>
+                  <Button className="w-full" variant="outline">
+                    <Vote className="h-4 w-4 mr-2" />
+                    إجراء تصويت
+                  </Button>
+                  <Button className="w-full" variant="outline">
+                    <Scale className="h-4 w-4 mr-2" />
+                    طلب تحكيم
+                  </Button>
                 </CardContent>
               </Card>
+
+              <MCPIntegration groupId="dashboard" context="group" />
             </div>
+          </div>
+        </TabsContent>
+
+        <TabsContent value="groups" className="space-y-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {/* Groups by Type */}
+            <Card>
+              <CardHeader>
+                <CardTitle>توزيع المجموعات</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="space-y-3">
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm">شراء جماعي</span>
+                    <div className="flex items-center gap-2">
+                      <Progress value={65} className="w-20" />
+                      <span className="text-sm font-medium">65</span>
+                    </div>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm">تسويق تعاوني</span>
+                    <div className="flex items-center gap-2">
+                      <Progress value={45} className="w-20" />
+                      <span className="text-sm font-medium">45</span>
+                    </div>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm">تأسيس شركات</span>
+                    <div className="flex items-center gap-2">
+                      <Progress value={32} className="w-20" />
+                      <span className="text-sm font-medium">32</span>
+                    </div>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm">مشاريع استثمارية</span>
+                    <div className="flex items-center gap-2">
+                      <Progress value={14} className="w-20" />
+                      <span className="text-sm font-medium">14</span>
+                    </div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* ESG Groups */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Leaf className="h-5 w-5 text-green-600" />
+                  مجموعات ESG
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="text-center space-y-2">
+                  <div className="text-3xl font-bold text-green-600">42</div>
+                  <p className="text-sm text-gray-600">مشروع مستدام</p>
+                  <Badge className="bg-green-100 text-green-800">
+                    27% من إجمالي المجموعات
+                  </Badge>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Global Reach */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Globe className="h-5 w-5 text-blue-600" />
+                  الانتشار العالمي
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-2">
+                  <div className="flex justify-between">
+                    <span className="text-sm">الشرق الأوسط</span>
+                    <span className="text-sm font-medium">68%</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-sm">أوروبا</span>
+                    <span className="text-sm font-medium">18%</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-sm">آسيا</span>
+                    <span className="text-sm font-medium">14%</span>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
           </div>
         </TabsContent>
 
         <TabsContent value="contracts" className="space-y-6">
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-            {contractStatuses.map((status) => (
-              <Card key={status.status}>
-                <CardContent className="p-4">
-                  <div className="flex items-center gap-3">
-                    <div className={`w-3 h-3 rounded-full ${status.color}`} />
-                    <div>
-                      <div className="font-semibold">{status.count}</div>
-                      <div className="text-sm text-gray-600">{status.label}</div>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <Card>
+              <CardContent className="p-6 text-center">
+                <div className="text-2xl font-bold text-blue-600 mb-2">89</div>
+                <div className="text-sm text-gray-600">عقود نشطة</div>
+              </CardContent>
+            </Card>
+            <Card>
+              <CardContent className="p-6 text-center">
+                <div className="text-2xl font-bold text-green-600 mb-2">156</div>
+                <div className="text-sm text-gray-600">عقود مكتملة</div>
+              </CardContent>
+            </Card>
+            <Card>
+              <CardContent className="p-6 text-center">
+                <div className="text-2xl font-bold text-yellow-600 mb-2">12</div>
+                <div className="text-sm text-gray-600">في التفاوض</div>
+              </CardContent>
+            </Card>
+            <Card>
+              <CardContent className="p-6 text-center">
+                <div className="text-2xl font-bold text-red-600 mb-2">3</div>
+                <div className="text-sm text-gray-600">نزاعات</div>
+              </CardContent>
+            </Card>
           </div>
-
-          <Card>
-            <CardHeader>
-              <CardTitle>إدارة العقود</CardTitle>
-              <CardDescription>
-                مراقبة ومتابعة جميع العقود في المنصة
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <h4 className="font-medium">متوسط وقت التفاوض</h4>
-                    <p className="text-sm text-gray-600">
-                      {mockDashboardData.averageNegotiationTime} أيام
-                    </p>
-                  </div>
-                  <TrendingUp className="h-8 w-8 text-green-600" />
-                </div>
-                
-                <div className="grid grid-cols-2 gap-4 text-sm">
-                  <div>• عقود IPFS مؤرشفة: 100%</div>
-                  <div>• تقييم MCP متاح: 95%</div>
-                  <div>• دعم متعدد اللغات: متاح</div>
-                  <div>• تكامل مع Paddle: نشط</div>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
-
-        <TabsContent value="groups" className="space-y-6">
-          <Card>
-            <CardHeader>
-              <CardTitle>إحصائيات المجموعات</CardTitle>
-              <CardDescription>
-                تحليل أداء وتوزيع المجموعات
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <div className="text-center p-4 bg-blue-50 rounded-lg">
-                  <div className="text-2xl font-bold text-blue-600">85</div>
-                  <div className="text-sm text-blue-700">مجموعات شراء مشترك</div>
-                </div>
-                <div className="text-center p-4 bg-green-50 rounded-lg">
-                  <div className="text-2xl font-bold text-green-600">34</div>
-                  <div className="text-sm text-green-700">مجموعات تسويق تعاوني</div>
-                </div>
-                <div className="text-center p-4 bg-purple-50 rounded-lg">
-                  <div className="text-2xl font-bold text-purple-600">23</div>
-                  <div className="text-sm text-purple-700">مجموعات تأسيس شركات</div>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
         </TabsContent>
 
         <TabsContent value="analytics" className="space-y-6">
-          <Card>
-            <CardHeader>
-              <CardTitle>تحليلات متقدمة</CardTitle>
-              <CardDescription>
-                رؤى عميقة حول أداء المنصة
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div className="space-y-4">
-                  <h4 className="font-medium">الأداء المالي</h4>
-                  <div className="space-y-2 text-sm">
-                    <div className="flex justify-between">
-                      <span>رسوم المنصة</span>
-                      <span className="font-medium">142,500 ريال</span>
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <Card>
+              <CardHeader>
+                <CardTitle>أداء المنصة</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="space-y-3">
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm">معدل نجاح المشاريع</span>
+                    <div className="flex items-center gap-2">
+                      <Progress value={94.2} className="w-20" />
+                      <span className="text-sm font-medium">94.2%</span>
                     </div>
-                    <div className="flex justify-between">
-                      <span>رسوم KYC</span>
-                      <span className="font-medium">28,750 ريال</span>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm">رضا المستخدمين</span>
+                    <div className="flex items-center gap-2">
+                      <Progress value={88.7} className="w-20" />
+                      <span className="text-sm font-medium">88.7%</span>
                     </div>
-                    <div className="flex justify-between">
-                      <span>رسوم التأسيس</span>
-                      <span className="font-medium">95,200 ريال</span>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm">كفاءة التفاوض</span>
+                    <div className="flex items-center gap-2">
+                      <Progress value={76.3} className="w-20" />
+                      <span className="text-sm font-medium">76.3%</span>
                     </div>
                   </div>
                 </div>
-                
-                <div className="space-y-4">
-                  <h4 className="font-medium">مؤشرات الجودة</h4>
-                  <div className="space-y-2 text-sm">
-                    <div className="flex justify-between">
-                      <span>رضا المستخدمين</span>
-                      <span className="font-medium text-green-600">4.8/5</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span>معدل إتمام العقود</span>
-                      <span className="font-medium text-green-600">94.7%</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span>وقت الاستجابة</span>
-                      <span className="font-medium text-green-600">أقل من ساعتين</span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader>
+                <CardTitle>تحليل MCP</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <MCPIntegration groupId="analytics" context="investment" />
+              </CardContent>
+            </Card>
+          </div>
         </TabsContent>
 
         <TabsContent value="system" className="space-y-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
-                  <Brain className="h-5 w-5 text-purple-600" />
-                  نظام MCP
+                  <Shield className="h-5 w-5 text-blue-600" />
+                  أمان النظام
                 </CardTitle>
               </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="flex items-center justify-between">
-                  <span>حالة النظام</span>
-                  <Badge className="bg-green-100 text-green-800">نشط</Badge>
+              <CardContent>
+                <div className="space-y-3">
+                  <div className="flex justify-between">
+                    <span className="text-sm">حالة IPFS</span>
+                    <Badge className="bg-green-100 text-green-800">متصل</Badge>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-sm">تشفير البيانات</span>
+                    <Badge className="bg-green-100 text-green-800">نشط</Badge>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-sm">النسخ الاحتياطي</span>
+                    <Badge className="bg-green-100 text-green-800">محدث</Badge>
+                  </div>
                 </div>
-                <div className="flex items-center justify-between">
-                  <span>دقة التحليل</span>
-                  <span className="font-medium">98.5%</span>
-                </div>
-                <div className="flex items-center justify-between">
-                  <span>وقت الاستجابة</span>
-                  <span className="font-medium">أقل من ثانية واحدة</span>
-                </div>
-                <Button size="sm" className="w-full">
-                  تحديث النماذج
-                </Button>
               </CardContent>
             </Card>
 
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
-                  <Globe className="h-5 w-5 text-blue-600" />
-                  الأنظمة المتكاملة
+                  <Brain className="h-5 w-5 text-purple-600" />
+                  محرك MCP
                 </CardTitle>
               </CardHeader>
-              <CardContent className="space-y-3">
-                {[
-                  { name: 'IPFS', status: 'متصل', color: 'text-green-600' },
-                  { name: 'SnapDAO', status: 'متصل', color: 'text-green-600' },
-                  { name: 'Loomio', status: 'متصل', color: 'text-green-600' },
-                  { name: 'Paddle', status: 'متصل', color: 'text-green-600' },
-                  { name: 'Zulip', status: 'متصل', color: 'text-green-600' }
-                ].map((system) => (
-                  <div key={system.name} className="flex items-center justify-between">
-                    <span className="text-sm">{system.name}</span>
-                    <span className={`text-xs font-medium ${system.color}`}>
-                      {system.status}
-                    </span>
+              <CardContent>
+                <div className="space-y-3">
+                  <div className="flex justify-between">
+                    <span className="text-sm">معدل الاستجابة</span>
+                    <span className="text-sm font-medium">1.2 ثانية</span>
                   </div>
-                ))}
+                  <div className="flex justify-between">
+                    <span className="text-sm">دقة التحليل</span>
+                    <span className="text-sm font-medium">96.8%</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-sm">الحالة</span>
+                    <Badge className="bg-green-100 text-green-800">مثلى</Badge>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Target className="h-5 w-5 text-orange-600" />
+                  إحصائيات الأداء
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-3">
+                  <div className="flex justify-between">
+                    <span className="text-sm">وقت التشغيل</span>
+                    <span className="text-sm font-medium">99.9%</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-sm">معالجة الطلبات</span>
+                    <span className="text-sm font-medium">1,234/دقيقة</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-sm">استخدام الذاكرة</span>
+                    <span className="text-sm font-medium">68%</span>
+                  </div>
+                </div>
               </CardContent>
             </Card>
           </div>
